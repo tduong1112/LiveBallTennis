@@ -37,7 +37,13 @@ struct RowItem: Identifiable {
     var id = UUID()
     var textFieldText: String
     var activePlayer: Bool
-    @StateObject var stopwatchViewModel = StopwatchViewModel()
+    var stopwatchViewModel: StopwatchViewModel
+    
+    init() {
+        self.stopwatchViewModel = StopwatchViewModel()
+        self.textFieldText = ""
+        self.activePlayer = false
+    }
 
 }
 
@@ -48,12 +54,13 @@ struct PlayerTimers: View {
     @StateObject var stopwatchViewModelA = StopwatchViewModel()
     @StateObject var stopwatchViewModelB = StopwatchViewModel()
 
-    @State private var rows: [RowItem] = [
-        RowItem(textFieldText: "", activePlayer: false),
-        RowItem(textFieldText: "", activePlayer: false),
-        RowItem(textFieldText: "", activePlayer: false)
-    ]
-    
+    @State private var rows: [RowItem] = {
+        var array = [RowItem]()
+        for _ in 0..<5 {
+            array.append(RowItem())
+        }
+        return array
+    }()
     @State private var playerSelectCount = 0;
 
     var body: some View {
@@ -112,14 +119,12 @@ struct PlayerTimers: View {
         
         VStack {
             List(rows) { row in
-                Text(String(format: "%.2f", row.stopwatchViewModel.elapsedTime))
-                    .padding()
-
                 HStack {
                     TextField("Enter text", text: self.binding(for: row))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-
+                    Text(String(format: "%.2f", row.stopwatchViewModel.elapsedTime))
+                        .padding()
                     Button(action: {
                         // Change color logic here
                         self.toggleActivePlayer(for: row)
@@ -162,8 +167,6 @@ struct PlayerTimers: View {
             rows[index].stopwatchViewModel.start()
         } else {
             rows[index].stopwatchViewModel.stop()
-            rows[index].stopwatchViewModel.reset()
-
         }
     }
     
