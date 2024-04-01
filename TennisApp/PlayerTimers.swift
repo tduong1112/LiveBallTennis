@@ -17,8 +17,6 @@ class StopwatchViewModel: ObservableObject {
             self.elapsedTime += 0.01
         }
         isRunning = true
-        print("Timer Started \(self.elapsedTime) \(isRunning)")
-
     }
     
     func stop() {
@@ -39,7 +37,7 @@ struct RowItem: Identifiable {
     var id = UUID()
     var textFieldText: String
     var activePlayer: Bool
-    var stopwatchViewModel = StopwatchViewModel()
+    @StateObject var stopwatchViewModel = StopwatchViewModel()
 
 }
 
@@ -114,16 +112,17 @@ struct PlayerTimers: View {
         
         VStack {
             List(rows) { row in
+                Text(String(format: "%.2f", row.stopwatchViewModel.elapsedTime))
+                    .padding()
+
                 HStack {
                     TextField("Enter text", text: self.binding(for: row))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                    Text(String(format: "%.2f", row.stopwatchViewModel.elapsedTime))
-                        .padding()
 
                     Button(action: {
                         // Change color logic here
-                        self.toggleButtonColor(for: row)
+                        self.toggleActivePlayer(for: row)
 
                     }) {
                         Text(row.stopwatchViewModel.isRunning ? "Stop" : "Start")
@@ -135,6 +134,11 @@ struct PlayerTimers: View {
                     }
                     .padding(.trailing)
                 }
+                .onReceive(row.stopwatchViewModel.$elapsedTime) { elapsedTime in
+                    // Handle the received elapsedTime for each row
+                    print("Elapsed time for row \(row.id): \(elapsedTime)")
+                }
+
 
             }
         }
@@ -148,7 +152,7 @@ struct PlayerTimers: View {
         return $rows[index].textFieldText
     }
     
-    private func toggleButtonColor(for row: RowItem) {
+    private func toggleActivePlayer(for row: RowItem) {
         guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
             return
         }
@@ -161,10 +165,9 @@ struct PlayerTimers: View {
             rows[index].stopwatchViewModel.reset()
 
         }
-                
-        print(playerSelectCount)
     }
     
+    // Toggling Logic for the color. Selects which color based on that row's active Status
     private func buttonColor(for row: RowItem) -> Color {
         guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
             return .blue
