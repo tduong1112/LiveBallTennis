@@ -13,10 +13,12 @@ class StopwatchViewModel: ObservableObject {
     private var timer: Timer?
     
     func start() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
             self.elapsedTime += 0.01
         }
         isRunning = true
+        print("Timer Started \(self.elapsedTime) \(isRunning)")
+
     }
     
     func stop() {
@@ -36,8 +38,8 @@ class StopwatchViewModel: ObservableObject {
 struct RowItem: Identifiable {
     var id = UUID()
     var textFieldText: String
-    var labelText: String
-    @StateObject var stopwatchViewModel = StopwatchViewModel()
+    var activePlayer: Bool
+    var stopwatchViewModel = StopwatchViewModel()
 
 }
 
@@ -45,68 +47,99 @@ struct PlayerTimers: View {
     @Binding var selectedTennisClass: String
     @Binding var numPlayers : Int
 
-    @StateObject var stopwatchViewModel = StopwatchViewModel()
+    @StateObject var stopwatchViewModelA = StopwatchViewModel()
+    @StateObject var stopwatchViewModelB = StopwatchViewModel()
+
     @State private var rows: [RowItem] = [
-        RowItem(textFieldText: "", labelText: "Row 1"),
-        RowItem(textFieldText: "", labelText: "Row 2"),
-        RowItem(textFieldText: "", labelText: "Row 3")
+        RowItem(textFieldText: "", activePlayer: false),
+        RowItem(textFieldText: "", activePlayer: false),
+        RowItem(textFieldText: "", activePlayer: false)
     ]
     
     @State private var playerSelectCount = 0;
-    @State private var buttonStates: [UUID: Bool] = [:]
-
 
     var body: some View {
         
         Text("Selected option: \(selectedTennisClass) \(numPlayers)")
             .padding()
         
-        Text(String(format: "%.2f", stopwatchViewModel.elapsedTime))
+        Text(String(format: "%.2f", stopwatchViewModelA.elapsedTime))
             .font(.largeTitle)
             .padding()
         
         HStack {
             Button(action: {
-                if stopwatchViewModel.isRunning {
-                    stopwatchViewModel.stop()
+                if stopwatchViewModelA.isRunning {
+                    stopwatchViewModelA.stop()
                 } else {
-                    stopwatchViewModel.start()
+                    stopwatchViewModelA.start()
                 }
             }) {
-                Text(stopwatchViewModel.isRunning ? "Stop" : "Start")
+                Text(stopwatchViewModelA.isRunning ? "Stop" : "Start")
                     .padding()
             }
             
             Button(action: {
-                stopwatchViewModel.reset()
+                stopwatchViewModelA.reset()
             }) {
                 Text("Reset")
                     .padding()
             }
         }
+        
+        Text(String(format: "%.2f", stopwatchViewModelB.elapsedTime))
+            .font(.largeTitle)
+            .padding()
+        
+        HStack {
+            Button(action: {
+                if stopwatchViewModelB.isRunning {
+                    stopwatchViewModelB.stop()
+                } else {
+                    stopwatchViewModelB.start()
+                }
+            }) {
+                Text(stopwatchViewModelB.isRunning ? "Stop" : "Start")
+                    .padding()
+            }
+            
+            Button(action: {
+                stopwatchViewModelB.reset()
+            }) {
+                Text("Reset")
+                    .padding()
+            }
+        }
+
+        
         VStack {
             List(rows) { row in
                 HStack {
                     TextField("Enter text", text: self.binding(for: row))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                    
+                    Text(String(format: "%.2f", row.stopwatchViewModel.elapsedTime))
+                        .padding()
+
                     Button(action: {
                         // Change color logic here
-                        print("Button pressed for \(row.labelText)")
                         self.toggleButtonColor(for: row)
 
                     }) {
-                        Text(String(format: "%.2f", row.stopwatchViewModel.elapsedTime))
+                        Text(row.stopwatchViewModel.isRunning ? "Stop" : "Start")
                             .padding()
                             .background(buttonColor(for: row))
                             .foregroundColor(.white)
                             .cornerRadius(8)
+
                     }
                     .padding(.trailing)
                 }
+
             }
         }
+
+
     }
     private func binding(for row: RowItem) -> Binding<String> {
         guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
@@ -119,16 +152,24 @@ struct PlayerTimers: View {
         guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
             return
         }
-        let buttonID = rows[index].id
-        buttonStates[buttonID, default: false].toggle()
+        rows[index].activePlayer.toggle()
+        playerSelectCount += rows[index].activePlayer ? 1 : -1
+        if rows[index].activePlayer {
+            rows[index].stopwatchViewModel.start()
+        } else {
+            rows[index].stopwatchViewModel.stop()
+            rows[index].stopwatchViewModel.reset()
+
+        }
+                
+        print(playerSelectCount)
     }
     
     private func buttonColor(for row: RowItem) -> Color {
         guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
             return .blue
         }
-        let buttonID = rows[index].id
-        return buttonStates[buttonID, default: false] ? .red : .blue
+        return rows[index].activePlayer ? .red : .blue
     }
 
     
