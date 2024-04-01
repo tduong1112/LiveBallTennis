@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct RowItem: Identifiable {
+struct PlayerItem: Identifiable {
     var id = UUID()
     var textFieldText: String
     var activePlayer: Bool
@@ -23,13 +23,14 @@ struct PlayerTimers: View {
     @Binding var selectedTennisClass: String
     @Binding var numPlayers : Int
 
-    @State private var rows: [RowItem] = {
-        var array = [RowItem]()
+    @State private var playerRows: [PlayerItem] = {
+        var array = [PlayerItem]()
         for _ in 0..<5 {
-            array.append(RowItem())
+            array.append(PlayerItem())
         }
         return array
     }()
+    
     @State private var playerSelectCount = 0;
 
     var body: some View {
@@ -38,20 +39,20 @@ struct PlayerTimers: View {
             .padding()
 
         VStack {
-            List(rows) { row in
+            List(playerRows) { PlayerItem in
                 HStack {
-                    TextField("Enter text", text: self.binding(for: row))
+                    TextField("Enter text", text: self.binding(for: PlayerItem))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
 
                     Button(action: {
                         // Change color logic here
-                        self.toggleActivePlayer(for: row)
+                        self.toggleActivePlayer(for: PlayerItem)
 
                     }) {
-                        Text("Row \(row.activePlayer)")
+                        Text("Row \(PlayerItem.activePlayer)")
                             .padding()
-                            .background(buttonColor(for: row))
+                            .background(buttonColor(for: PlayerItem))
                             .foregroundColor(.white)
                             .cornerRadius(2)
 
@@ -63,30 +64,32 @@ struct PlayerTimers: View {
 
 
     }
-    private func binding(for row: RowItem) -> Binding<String> {
-        guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
-            fatalError("Can't find row in array")
+    private func binding(for PlayerItem: PlayerItem) -> Binding<String> {
+        guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
+            fatalError("Can't find PlayerItem in array")
         }
-        return $rows[index].textFieldText
+        return $playerRows[index].textFieldText
     }
     
-    private func toggleActivePlayer(for row: RowItem) {
-        guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
+    private func toggleActivePlayer(for PlayerItem: PlayerItem) {
+        guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
             return
         }
-        if rows[index].textFieldText.isEmpty{
+        // Make sure an empty name is not submitted
+        if playerRows[index].textFieldText.isEmpty{
             return
         }
-        rows[index].activePlayer.toggle()
-        playerSelectCount += rows[index].activePlayer ? 1 : -1
+        playerRows[index].activePlayer.toggle()
+        playerSelectCount += playerRows[index].activePlayer ? 1 : -1
     }
     
-    // Toggling Logic for the color. Selects which color based on that row's active Status
-    private func buttonColor(for row: RowItem) -> Color {
-        guard let index = rows.firstIndex(where: { $0.id == row.id }) else {
+    
+    // Toggling Logic for the color. Selects which color based on that PlayerItem's active Status
+    private func buttonColor(for PlayerItem: PlayerItem) -> Color {
+        guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
             return .blue
         }
-        return rows[index].activePlayer ? .red : .blue
+        return playerRows[index].activePlayer ? .red : .blue
     }
 
     

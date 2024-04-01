@@ -31,10 +31,10 @@ struct MyStruct: Identifiable {
 }
 struct Sandbox: View {
 
-    @State private var rows: [RowItem] = {
-        var array = [RowItem]()
+    @State private var rows: [PlayerItem] = {
+        var array = [PlayerItem]()
         for _ in 0..<5 {
-            array.append(RowItem())
+            array.append(PlayerItem())
         }
         return array
     }()
