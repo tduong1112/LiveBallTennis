@@ -17,7 +17,7 @@ class StopwatchViewModel: ObservableObject {
     
     func start() {
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            self.elapsedTime += 0.01
+            self.elapsedTime += 0.1
         }
         isRunning = true
     }
@@ -52,9 +52,9 @@ struct DoublesRecord: Identifiable {
     var id = UUID()
     var player1Name: String
     var player2Name: String
-    var timeSpentOnHill: Int
+    var timeSpentOnHill: Double
     
-    init(player1Name: String, player2Name: String , timeSpentOnHill: Int){
+    init(player1Name: String, player2Name: String , timeSpentOnHill: Double){
         self.player1Name = player1Name
         self.player2Name = player2Name
         self.timeSpentOnHill = timeSpentOnHill
@@ -69,7 +69,7 @@ struct PlayerTimers: View {
     
     @State private var playerRows: [PlayerItem] = {
         var array = [PlayerItem]()
-        for count in 0..<5 {
+        for count in 0..<10 {
             array.append(PlayerItem(count: count))
         }
         return array
@@ -77,15 +77,11 @@ struct PlayerTimers: View {
     
     
     @State private var doublesRecordList : [DoublesRecord] = [
-        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
-        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
-        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
-        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
     ]
     @State private var playerSelectCount = 0;
     
     var body: some View {
-        
+        // Timer Section
         Text("Selected option: \(selectedTennisClass) \(numPlayers)")
         Text(String(format: "%.2f", stopwatchViewModel.elapsedTime))
         
@@ -109,13 +105,15 @@ struct PlayerTimers: View {
             }
         }
         
-        
+        // Player Card Section
         VStack(spacing: 3) {
             List(playerRows) { PlayerItem in
                 HStack {
                     TextField("Enter text", text: self.binding(for: PlayerItem))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(height: 10)
+
                     
                     Button(action: {
                         // Change color logic here
@@ -126,17 +124,18 @@ struct PlayerTimers: View {
                             .padding()
                             .background(buttonColor(for: PlayerItem))
                             .foregroundColor(.white)
-                            .cornerRadius(2)
                         
                     }
                     .padding(.trailing)
+                    .frame(height: 10)
+
                 }
             }
         }
         .frame(height: 500)
         
         
-        
+        // Doubles History Section
         ScrollView {
             VStack (spacing: 1){
                 ForEach(0..<doublesRecordList.count, id: \.self) {index in
@@ -148,9 +147,9 @@ struct PlayerTimers: View {
                         Text("\(doublesRecordList[index].player2Name)")
                             .frame(maxWidth: .infinity, alignment: .center)
 
-                        Text("\(doublesRecordList[index].timeSpentOnHill)")
+                        Text(String(format: "%.2f", doublesRecordList[index].timeSpentOnHill))
                             .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.trailing, 40)
+                            .padding(.trailing, 60)
                     }
                 }
             }
@@ -171,12 +170,18 @@ struct PlayerTimers: View {
         if playerRows[index].textFieldText.isEmpty{
             return
         }
+        if (playerRows[index].activePlayer && stopwatchViewModel.isRunning ){
+            stopwatchViewModel.stop()
+            stopwatchViewModel.reset()
+        }
         playerRows[index].activePlayer.toggle()
         
-        // State Logic for Player Count Activating Timer
         playerSelectCount += playerRows[index].activePlayer ? 1 : -1
-        
+
         liveBallGameState()
+
+
+
     }
     
     
@@ -187,14 +192,33 @@ struct PlayerTimers: View {
         }
         return playerRows[index].activePlayer ? .red : .blue
     }
-    
     private func liveBallGameState() {
+        // Minimum amount of players selected should exit out and not trigger reset logic
+
         if playerSelectCount >= 2 && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()
-        } else if stopwatchViewModel.isRunning {
+        } else if playerSelectCount >= 2 && stopwatchViewModel.isRunning {
             stopwatchViewModel.stop()
+            addDoublesRecord()
             resetAllActivePlayers()
+            stopwatchViewModel.reset()
         }
+
+    }
+    
+    private func addDoublesRecord(){
+        var activePlayers : [String] = []
+        for index in playerRows.indices {
+            if playerRows[index].activePlayer{
+                activePlayers.append(playerRows[index].textFieldText)
+            }
+        }
+        
+        doublesRecordList.append(DoublesRecord(
+            player1Name: activePlayers[0],
+            player2Name: activePlayers[1],
+            timeSpentOnHill: stopwatchViewModel.elapsedTime))
+
     }
     
     private func resetAllActivePlayers() {
@@ -210,7 +234,7 @@ struct PlayerTimers: View {
 #Preview {
     PlayerTimers(
         selectedTennisClass: .constant("Option A"),
-        numPlayers: .constant(5)
+        numPlayers: .constant(10)
     )
 }
 
