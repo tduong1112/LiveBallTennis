@@ -41,8 +41,8 @@ struct PlayerItem: Identifiable {
     var textFieldText: String
     var activePlayer: Bool
     
-    init(count: Int) {
-        self.textFieldText = "Player \(count)"
+    init() {
+        self.textFieldText = ""
         self.activePlayer = false
     }
     
@@ -66,14 +66,16 @@ struct PlayerTimers: View {
     @Binding var selectedTennisClass: String
     @Binding var numPlayers : Int
     @StateObject var stopwatchViewModel = StopwatchViewModel()
-    
-    @State private var playerRows: [PlayerItem] = {
-        var array = [PlayerItem]()
-        for count in 0..<10 {
-            array.append(PlayerItem(count: count))
-        }
-        return array
-    }()
+    @State private var playerRows: [PlayerItem]
+    init(selectedTennisClass: Binding<String>, numPlayers: Binding<Int>) {
+        _selectedTennisClass = selectedTennisClass
+        _numPlayers = numPlayers
+        _playerRows = State(initialValue: (0..<numPlayers.wrappedValue).map{
+                _ in PlayerItem()
+            } )
+
+    }
+       
     
     
     @State private var doublesRecordList : [DoublesRecord] = [
@@ -82,38 +84,46 @@ struct PlayerTimers: View {
     
     var body: some View {
         // Timer Section
-        Text("Selected option: \(selectedTennisClass) \(numPlayers)")
-        Text(String(format: "%.2f", stopwatchViewModel.elapsedTime))
-        
-        HStack {
-            Button(action: {
-                if stopwatchViewModel.isRunning {
-                    stopwatchViewModel.stop()
-                } else {
-                    stopwatchViewModel.start()
+        // Optional Debug Text for Options Listed
+//        Text("Selected option: \(selectedTennisClass) \(numPlayers)")
+//            .padding()
+        VStack {
+            Text("Current Live Ball Champ Time")
+            Text(String(format: "%.2f", stopwatchViewModel.elapsedTime))
+                .font(.largeTitle)
+            /* //Optional Debug Stopwatch Buttons
+            HStack {
+                Button(action: {
+                    if stopwatchViewModel.isRunning {
+                        stopwatchViewModel.stop()
+                    } else {
+                        stopwatchViewModel.start()
+                    }
+                }) {
+                    Text(stopwatchViewModel.isRunning ? "Stop" : "Start")
+                    .padding(3)
                 }
-            }) {
-                Text(stopwatchViewModel.isRunning ? "Stop" : "Start")
-                    .padding()
+                
+                Button(action: {
+                    stopwatchViewModel.reset()
+                }) {
+                    Text("Reset")
+                    .padding(3)
+                }
             }
-            
-            Button(action: {
-                stopwatchViewModel.reset()
-            }) {
-                Text("Reset")
-                    .padding()
-            }
+             */
+
         }
         
         // Player Card Section
-        VStack(spacing: 3) {
+        VStack() {
             List(playerRows) { PlayerItem in
                 HStack {
                     TextField("Enter text", text: self.binding(for: PlayerItem))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .frame(height: 10)
-
+                        .disableAutocorrection(true)
                     
                     Button(action: {
                         // Change color logic here
@@ -132,26 +142,42 @@ struct PlayerTimers: View {
                 }
             }
         }
-        .frame(height: 500)
+        .frame(height: 475)
         
         
         // Doubles History Section
-        ScrollView {
-            VStack (spacing: 1){
-                ForEach(0..<doublesRecordList.count, id: \.self) {index in
-                    HStack {
-                        Text("\(doublesRecordList[index].player1Name)")
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, 30)
-
-                        Text("\(doublesRecordList[index].player2Name)")
-                            .frame(maxWidth: .infinity, alignment: .center)
-
-                        Text(String(format: "%.2f", doublesRecordList[index].timeSpentOnHill))
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.trailing, 60)
+        NavigationView {
+            ZStack() {
+                ScrollView {
+                    VStack {
+                        ForEach(0..<doublesRecordList.count, id: \.self) {index in
+                            HStack {
+                                Text("\(doublesRecordList[index].player1Name)")
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.leading, 30)
+                                
+                                Text("\(doublesRecordList[index].player2Name)")
+                                    .frame(maxWidth: .infinity, alignment: .center)
+                                
+                                Text(String(format: "%.2f", doublesRecordList[index].timeSpentOnHill))
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                                    .padding(.trailing, 60)
+                            }
+                        }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .top)
+                .background(Color.black)
+                .foregroundColor(Color.white)
+
+                NavigationLink(destination:SubmitPlayerScores()) {
+                    Text("Submit Scores")
+                }
+                .padding()
+                .foregroundColor(Color.black)
+                .background(Color.white)
+                .opacity(0.5)
+                .frame(alignment: .bottom)
             }
         }
     }
@@ -218,7 +244,8 @@ struct PlayerTimers: View {
             player1Name: activePlayers[0],
             player2Name: activePlayers[1],
             timeSpentOnHill: stopwatchViewModel.elapsedTime))
-
+        
+        doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
     }
     
     private func resetAllActivePlayers() {

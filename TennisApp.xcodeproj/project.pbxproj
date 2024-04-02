@@ -16,6 +16,7 @@
 		8858C5F32BBA5DF7001391E8 /* TennisClassSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F22BBA5DF7001391E8 /* TennisClassSelect.swift */; };
 		8858C5F52BBA60B4001391E8 /* PlayerTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */; };
 		8858C5F72BBB6BA0001391E8 /* Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F62BBB6BA0001391E8 /* Sandbox.swift */; };
+		8858C5F92BBCCD26001391E8 /* SubmitPlayerScores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F82BBCCD26001391E8 /* SubmitPlayerScores.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		8858C5F22BBA5DF7001391E8 /* TennisClassSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisClassSelect.swift; sourceTree = "<group>"; };
 		8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTimers.swift; sourceTree = "<group>"; };
 		8858C5F62BBB6BA0001391E8 /* Sandbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sandbox.swift; sourceTree = "<group>"; };
+		8858C5F82BBCCD26001391E8 /* SubmitPlayerScores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitPlayerScores.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -106,6 +108,7 @@
 				8858C5F22BBA5DF7001391E8 /* TennisClassSelect.swift */,
 				8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */,
 				8858C5F62BBB6BA0001391E8 /* Sandbox.swift */,
+				8858C5F82BBCCD26001391E8 /* SubmitPlayerScores.swift */,
 			);
 			path = TennisApp;
 			sourceTree = "<group>";
@@ -267,6 +270,7 @@
 			files = (
 				8858C5C82BBA2009001391E8 /* TennisAppApp.swift in Sources */,
 				8858C5F32BBA5DF7001391E8 /* TennisClassSelect.swift in Sources */,
+				8858C5F92BBCCD26001391E8 /* SubmitPlayerScores.swift in Sources */,
 				8858C5F52BBA60B4001391E8 /* PlayerTimers.swift in Sources */,
 				8858C5F72BBB6BA0001391E8 /* Sandbox.swift in Sources */,
 			);
