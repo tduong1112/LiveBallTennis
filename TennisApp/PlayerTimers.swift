@@ -45,7 +45,21 @@ struct PlayerItem: Identifiable {
         self.textFieldText = "Player \(count)"
         self.activePlayer = false
     }
+    
+}
 
+struct DoublesRecord: Identifiable {
+    var id = UUID()
+    var player1Name: String
+    var player2Name: String
+    var timeSpentOnHill: Int
+    
+    init(player1Name: String, player2Name: String , timeSpentOnHill: Int){
+        self.player1Name = player1Name
+        self.player2Name = player2Name
+        self.timeSpentOnHill = timeSpentOnHill
+        
+    }
 }
 
 struct PlayerTimers: View {
@@ -61,8 +75,14 @@ struct PlayerTimers: View {
         return array
     }()
     
+    
+    @State private var doublesRecordList : [DoublesRecord] = [
+        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
+        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
+        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
+        DoublesRecord(player1Name:"Player 1", player2Name:"Player 2", timeSpentOnHill: 10),
+    ]
     @State private var playerSelectCount = 0;
-    @State private var gameStateEnum = 0;
     
     var body: some View {
         
@@ -88,33 +108,53 @@ struct PlayerTimers: View {
                     .padding()
             }
         }
-    
-
-        VStack {
+        
+        
+        VStack(spacing: 3) {
             List(playerRows) { PlayerItem in
                 HStack {
                     TextField("Enter text", text: self.binding(for: PlayerItem))
                         .padding()
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-
+                    
                     Button(action: {
                         // Change color logic here
                         self.toggleActivePlayer(for: PlayerItem)
-
+                        
                     }) {
                         Text("\(PlayerItem.activePlayer)")
                             .padding()
                             .background(buttonColor(for: PlayerItem))
                             .foregroundColor(.white)
                             .cornerRadius(2)
-
+                        
                     }
                     .padding(.trailing)
                 }
             }
         }
+        .frame(height: 500)
+        
+        
+        
+        ScrollView {
+            VStack (spacing: 1){
+                ForEach(0..<doublesRecordList.count, id: \.self) {index in
+                    HStack {
+                        Text("\(doublesRecordList[index].player1Name)")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.leading, 30)
 
+                        Text("\(doublesRecordList[index].player2Name)")
+                            .frame(maxWidth: .infinity, alignment: .center)
 
+                        Text("\(doublesRecordList[index].timeSpentOnHill)")
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                            .padding(.trailing, 40)
+                    }
+                }
+            }
+        }
     }
     private func binding(for PlayerItem: PlayerItem) -> Binding<String> {
         guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
@@ -163,7 +203,7 @@ struct PlayerTimers: View {
         }
         playerSelectCount = 0
     }
-
+    
     
 }
 
@@ -173,5 +213,5 @@ struct PlayerTimers: View {
         numPlayers: .constant(5)
     )
 }
-        
+
 
