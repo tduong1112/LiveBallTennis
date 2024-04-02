@@ -34,7 +34,7 @@ struct Sandbox: View {
     @State private var rows: [PlayerItem] = {
         var array = [PlayerItem]()
         for _ in 0..<5 {
-            array.append(PlayerItem())
+            array.append(PlayerItem(count : 1))
         }
         return array
     }()
