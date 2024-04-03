@@ -8,18 +8,26 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-
+let ROUND_DEFAULT_TIME = 1 * 20
 
 class StopwatchViewModel: ObservableObject {
-    @Published var elapsedTime = 0.0
+    @Published var elapsedPlayerTime = 0
+    @Published var elapsedRoundTime = 0
     @Published var isRunning = false
     private var timer: Timer?
+    private var timePerRound: Int
+    
+    init(timePerRound: Int) {
+        self.timePerRound = timePerRound
+    }
     
     func start() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            self.elapsedTime += 0.1
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            self.elapsedPlayerTime += 1
+            self.elapsedRoundTime += 1
         }
         isRunning = true
+        
     }
     
     func stop() {
@@ -31,9 +39,10 @@ class StopwatchViewModel: ObservableObject {
     func reset() {
         timer?.invalidate()
         timer = nil
-        elapsedTime = 0.0
+        elapsedPlayerTime = 0
         isRunning = false
     }
+
 }
 
 struct PlayerItem: Identifiable {
@@ -52,9 +61,9 @@ struct DoublesRecord: Identifiable {
     var id = UUID()
     var player1Name: String
     var player2Name: String
-    var timeSpentOnHill: Double
+    var timeSpentOnHill: Int
     
-    init(player1Name: String, player2Name: String , timeSpentOnHill: Double){
+    init(player1Name: String, player2Name: String , timeSpentOnHill: Int){
         self.player1Name = player1Name
         self.player2Name = player2Name
         self.timeSpentOnHill = timeSpentOnHill
@@ -65,11 +74,20 @@ struct DoublesRecord: Identifiable {
 struct PlayerTimers: View {
     @Binding var selectedTennisClass: String
     @Binding var numPlayers : Int
-    @StateObject var stopwatchViewModel = StopwatchViewModel()
+    @Binding var timePerRound: Int
+    
+    @StateObject var stopwatchViewModel : StopwatchViewModel
     @State private var playerRows: [PlayerItem]
-    init(selectedTennisClass: Binding<String>, numPlayers: Binding<Int>) {
+    init(selectedTennisClass: Binding<String>,
+         numPlayers: Binding<Int>,
+         timePerRound: Binding<Int>)
+    {
         _selectedTennisClass = selectedTennisClass
         _numPlayers = numPlayers
+        _timePerRound = timePerRound
+        
+        _stopwatchViewModel = StateObject(wrappedValue: StopwatchViewModel(timePerRound: timePerRound.wrappedValue))
+
         _playerRows = State(initialValue: (0..<numPlayers.wrappedValue).map{
                 _ in PlayerItem()
             } )
@@ -88,30 +106,41 @@ struct PlayerTimers: View {
 //        Text("Selected option: \(selectedTennisClass) \(numPlayers)")
 //            .padding()
         VStack {
-            Text("Current Live Ball Champ Time")
-            Text(String(format: "%.2f", stopwatchViewModel.elapsedTime))
-                .font(.largeTitle)
-            /* //Optional Debug Stopwatch Buttons
             HStack {
-                Button(action: {
-                    if stopwatchViewModel.isRunning {
-                        stopwatchViewModel.stop()
-                    } else {
-                        stopwatchViewModel.start()
-                    }
-                }) {
-                    Text(stopwatchViewModel.isRunning ? "Stop" : "Start")
-                    .padding(3)
-                }
-                
-                Button(action: {
-                    stopwatchViewModel.reset()
-                }) {
-                    Text("Reset")
-                    .padding(3)
-                }
+                Text("Time Left in Round: ")
+                    .font(.title3)
+
+                     
+                Text("\(String(format: "%dm %ds", (ROUND_DEFAULT_TIME - stopwatchViewModel.elapsedRoundTime)/60, (ROUND_DEFAULT_TIME - stopwatchViewModel.elapsedRoundTime) % 60))")
+                    .font(.title3)
+
             }
-             */
+            HStack {
+                Text("Current Live Ball Champ: \(String(format: "%ds", stopwatchViewModel.elapsedPlayerTime))")
+                    .font(.title3)
+                /* //Optional Debug Stopwatch Buttons
+                HStack {
+                    Button(action: {
+                        if stopwatchViewModel.isRunning {
+                            stopwatchViewModel.stop()
+                        } else {
+                            stopwatchViewModel.start()
+                        }
+                    }) {
+                        Text(stopwatchViewModel.isRunning ? "Stop" : "Start")
+                        .padding(3)
+                    }
+                    
+                    Button(action: {
+                        stopwatchViewModel.reset()
+                    }) {
+                        Text("Reset")
+                        .padding(3)
+                    }
+                }
+                 */
+
+            }
 
         }
         
@@ -159,7 +188,7 @@ struct PlayerTimers: View {
                                 Text("\(doublesRecordList[index].player2Name)")
                                     .frame(maxWidth: .infinity, alignment: .center)
                                 
-                                Text(String(format: "%.2f", doublesRecordList[index].timeSpentOnHill))
+                                Text(String(format: "%ds", doublesRecordList[index].timeSpentOnHill))
                                     .frame(maxWidth: .infinity, alignment: .trailing)
                                     .padding(.trailing, 60)
                             }
@@ -172,7 +201,7 @@ struct PlayerTimers: View {
                 if !doublesRecordList.isEmpty {
                     HStack {
                         NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
-                            Text("Submit Scores")
+                            Text("End Round")
                         }
                         .padding()
                         .foregroundColor(Color.black)
@@ -242,7 +271,7 @@ struct PlayerTimers: View {
     }
     private func liveBallGameState() {
         // Minimum amount of players selected should exit out and not trigger reset logic
-
+        
         if playerSelectCount >= 2 && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()
         } else if playerSelectCount >= 2 && stopwatchViewModel.isRunning {
@@ -265,7 +294,7 @@ struct PlayerTimers: View {
         doublesRecordList.append(DoublesRecord(
             player1Name: activePlayers[0],
             player2Name: activePlayers[1],
-            timeSpentOnHill: stopwatchViewModel.elapsedTime))
+            timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime))
         
         doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
     }
@@ -287,7 +316,8 @@ struct PlayerTimers: View {
 #Preview {
     PlayerTimers(
         selectedTennisClass: .constant("Option A"),
-        numPlayers: .constant(10)
+        numPlayers: .constant(10),
+        timePerRound: .constant(ROUND_DEFAULT_TIME)
     )
 }
 

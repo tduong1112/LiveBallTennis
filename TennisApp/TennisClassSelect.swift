@@ -12,8 +12,19 @@ struct TennisClassSelect: View {
     @State private var newItem = ""
     @State private var selectedClass = "Option 1"
     @State private var numPlayers = 2;
-    let numberPlayersPickerList = Array(2...10) // Example range from 1 to 10
+    @State private var timePerRound = 15;
 
+    let numberPlayersPickerList = Array(2...10) // Example range from 1 to 10
+    
+    let timePerRoundPickerList: [Int] = {
+        var array: [Int] = []
+        for i in stride(from: 5, through: 30, by: 5) {
+            array.append(i)
+        }
+        return array
+    }()
+    
+    
     var body: some View {
         Text("Tennis Class View");
         NavigationView {
@@ -57,10 +68,21 @@ struct TennisClassSelect: View {
                         }
                         .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
                     }
+                    
+                    HStack{
+                        Text("Time Per Round")
+                        Picker("Time Per Round", selection: $timePerRound) {
+                            ForEach(timePerRoundPickerList, id: \.self) { num in
+                                Text("\(num)")
+                            }
+                        }
+                        .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
+                    }
 
                     NavigationLink(destination:PlayerTimers(
                         selectedTennisClass: $selectedClass,
-                        numPlayers: $numPlayers))
+                        numPlayers: $numPlayers,
+                        timePerRound: $timePerRound))
                     {
                         Text("Select")
                             .padding()
