@@ -43,6 +43,10 @@ class StopwatchViewModel: ObservableObject {
         elapsedPlayerTime = 0
         isRunning = false
     }
+    
+    func resetRound() {
+        elapsedRoundTime = 0
+    }
 
 }
 
@@ -85,6 +89,8 @@ struct PlayerTimers: View {
     @StateObject var stopwatchViewModel : StopwatchViewModel
     @State private var playerRows: [PlayerItem]
     @State private var isTimerExpired = false
+    @State private var roundCount = 1
+    @State private var roundScoresList: [[DoublesRecord]] = []
 
     init(selectedTennisClass: Binding<String>,
          numPlayers: Binding<Int>,
@@ -105,9 +111,10 @@ struct PlayerTimers: View {
     
     
     @State private var doublesRecordList : [DoublesRecord] = [
-        /* Debug Double Records for formatting. Uncomment to use.
+         //Debug Double Records for formatting. Uncomment to use.
         DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
         DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
+        /*
         DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
         DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
         */
@@ -228,17 +235,23 @@ struct PlayerTimers: View {
                 .frame(maxWidth: .infinity, alignment: .top)
                 .background(Color.black)
                 .foregroundColor(Color.white)
-                if !doublesRecordList.isEmpty {
-                    HStack {
-                        NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
-                            Text("End Round")
-                        }
-                        .padding()
-                        .foregroundColor(Color.black)
-                        .background(Color.white)
-                        .opacity(0.5)
-                        .frame(alignment: .bottom)
+                
+                // End Round/Session/ Clear Doubles Table Buttons
+                HStack {
+                    if !doublesRecordList.isEmpty {
                         
+                        Button(action: {
+                            // Change color logic here
+                            self.endRound()
+                            
+                        }) {
+                            Text("End Round")
+                                .padding()
+                                .foregroundColor(Color.black)
+                                .background(Color.white)
+                                .opacity(0.5)
+                                .frame(alignment: .bottom)
+                        }
                         Button(action: {
                             // Change color logic here
                             self.resetDoublesRecord()
@@ -251,8 +264,19 @@ struct PlayerTimers: View {
                             .opacity(0.5)
                             .frame(alignment: .bottom)
                         }
+
                     }
+                    NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
+                        Text("End Session")
+                    }
+                    .padding()
+                    .foregroundColor(Color.black)
+                    .background(Color.white)
+                    .opacity(0.5)
+                    .frame(alignment: .bottom)
+                    
                 }
+                
             }
         }
     }
@@ -357,6 +381,14 @@ struct PlayerTimers: View {
         stopwatchViewModel.reset()
         print("Clean Up!")
 
+    }
+    
+    private func endRound() {
+        roundScoresList.append(doublesRecordList)
+        resetDoublesRecord()
+        stopwatchViewModel.resetRound()
+        print(roundScoresList)
+        
     }
     
     
