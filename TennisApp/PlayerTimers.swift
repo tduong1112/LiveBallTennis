@@ -170,15 +170,29 @@ struct PlayerTimers: View {
                 .background(Color.black)
                 .foregroundColor(Color.white)
                 if !doublesRecordList.isEmpty {
-                    
-                    NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
-                        Text("Submit Scores")
+                    HStack {
+                        NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
+                            Text("Submit Scores")
+                        }
+                        .padding()
+                        .foregroundColor(Color.black)
+                        .background(Color.white)
+                        .opacity(0.5)
+                        .frame(alignment: .bottom)
+                        
+                        Button(action: {
+                            // Change color logic here
+                            self.resetDoublesRecord()
+                            
+                        }) {
+                            Text("Clear")
+                            .padding()
+                            .foregroundColor(Color.black)
+                            .background(Color.white)
+                            .opacity(0.5)
+                            .frame(alignment: .bottom)
+                        }
                     }
-                    .padding()
-                    .foregroundColor(Color.black)
-                    .background(Color.white)
-                    .opacity(0.5)
-                    .frame(alignment: .bottom)
                 }
             }
         }
@@ -201,10 +215,16 @@ struct PlayerTimers: View {
         if (playerRows[index].activePlayer && stopwatchViewModel.isRunning ){
             stopwatchViewModel.stop()
             stopwatchViewModel.reset()
+            playerRows[index].activePlayer.toggle()
+            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
+
+        } else if (stopwatchViewModel.isRunning) {
+            liveBallGameState()
+
+        } else {
+            playerRows[index].activePlayer.toggle()
+            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
         }
-        playerRows[index].activePlayer.toggle()
-        
-        playerSelectCount += playerRows[index].activePlayer ? 1 : -1
 
         liveBallGameState()
 
@@ -255,6 +275,10 @@ struct PlayerTimers: View {
             playerRows[index].activePlayer = false
         }
         playerSelectCount = 0
+    }
+    
+    private func resetDoublesRecord() {
+        doublesRecordList = []
     }
     
     
