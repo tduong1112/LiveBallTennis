@@ -9,40 +9,39 @@ import Foundation
 import SwiftUI
 
 struct SubmitPlayerScores: View {
-    @State private var result: String = "Loading..." // Initial state for displaying loading message
-        
-        var body: some View {
-            VStack {
-                Text(result)
-                    .padding()
-                
-                Button("Fetch Data") {
-                    fetchData()
-                }
-                .padding()
-            }
-        }
-        
-        func fetchData() {
-            guard let url = URL(string: "https://5rbu4c8mn8.execute-api.us-east-1.amazonaws.com") else {
-                result = "Invalid URL"
-                return
-            }
-            
-            URLSession.shared.dataTask(with: url) { data, response, error in
-                if let error = error {
-                    result = "Error: \(error.localizedDescription)"
-                } else if let data = data {
-                    if let responseString = String(data: data, encoding: .utf8) {
-                        result = responseString
-                    } else {
-                        result = "Unable to decode response data"
-                    }
-                }
-            }.resume()
-        }
-}
+    @Binding var roundScoresList: [[DoublesRecord]]
+    
+    init(roundScoresList: Binding<[[DoublesRecord]]>) {
+        _roundScoresList = roundScoresList
+    }
 
-#Preview {
-    SubmitPlayerScores()
+        
+    var body: some View {
+        VStack {
+            Text("\(roundScoresList[0])")
+        }
+    }
+}
+struct SubmitPlayerScores_Previews: PreviewProvider {
+    static var previews: some View {
+        SubmitPlayerScores(roundScoresList: .constant(
+            [
+                [DoublesRecord(player1Name: "Alex", player2Name: "Karen", timeSpentOnHill: 5, isRoundEndingTeam: false),
+                 DoublesRecord(player1Name: "Chris", player2Name: "Ben", timeSpentOnHill: 3, isRoundEndingTeam: false),
+                 DoublesRecord(player1Name: "Jeff", player2Name: "Timothy", timeSpentOnHill: 6, isRoundEndingTeam: true),
+                 DoublesRecord(player1Name: "Melody", player2Name: "Ben", timeSpentOnHill: 7, isRoundEndingTeam: false)
+                ],
+                [DoublesRecord(player1Name: "Alex", player2Name: "Karen", timeSpentOnHill: 5, isRoundEndingTeam: false),
+                 DoublesRecord(player1Name: "Chris", player2Name: "Ben", timeSpentOnHill: 3, isRoundEndingTeam: false),
+                 DoublesRecord(player1Name: "Jeff", player2Name: "Timothy", timeSpentOnHill: 6, isRoundEndingTeam: true),
+                 DoublesRecord(player1Name: "Melody", player2Name: "Ben", timeSpentOnHill: 7, isRoundEndingTeam: false)
+                ],
+                [DoublesRecord(player1Name: "Alex", player2Name: "Karen", timeSpentOnHill: 5, isRoundEndingTeam: false),
+                 DoublesRecord(player1Name: "Chris", player2Name: "Ben", timeSpentOnHill: 3, isRoundEndingTeam: false),
+                 DoublesRecord(player1Name: "Jeff", player2Name: "Timothy", timeSpentOnHill: 6, isRoundEndingTeam: true),
+                 DoublesRecord(player1Name: "Melody", player2Name: "Ben", timeSpentOnHill: 7, isRoundEndingTeam: false)
+                ]
+            ])
+        )
+    }
 }

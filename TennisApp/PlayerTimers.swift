@@ -8,7 +8,7 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_TIME = 1 * 5
+let ROUND_DEFAULT_PREVIEW_TIME = 1 * 60
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
@@ -19,7 +19,7 @@ class StopwatchViewModel: ObservableObject {
     private var timer: Timer?
     
     init(timePerRound: Int) {
-        self.timePerRound = timePerRound
+        self.timePerRound = timePerRound * 60
     }
     
     func start() {
@@ -91,6 +91,17 @@ struct PlayerTimers: View {
     @State private var isTimerExpired = false
     @State private var roundCount = 1
     @State private var roundScoresList: [[DoublesRecord]] = []
+    @State private var playerSelectCount = 0;
+    @State private var doublesRecordList : [DoublesRecord] = [
+         //Debug Double Records for formatting. Uncomment to use.
+        DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+        DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
+        /*
+        DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
+        DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
+        */
+    ]
+    
 
     init(selectedTennisClass: Binding<String>,
          numPlayers: Binding<Int>,
@@ -108,19 +119,6 @@ struct PlayerTimers: View {
 
     }
        
-    
-    
-    @State private var doublesRecordList : [DoublesRecord] = [
-         //Debug Double Records for formatting. Uncomment to use.
-        DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-        DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
-        /*
-        DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
-        DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
-        */
-    ]
-    @State private var playerSelectCount = 0;
-    
     var body: some View {
         // Timer Section
         // Optional Debug Text for Options Listed
@@ -134,7 +132,7 @@ struct PlayerTimers: View {
                             .font(.title3)
                         
                         
-                        Text("\(String(format: "%dm %ds", (ROUND_DEFAULT_TIME - stopwatchViewModel.elapsedRoundTime)/60, (ROUND_DEFAULT_TIME - stopwatchViewModel.elapsedRoundTime) % 60))")
+                        Text("\(String(format: "%dm %ds", (stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime)/60, (stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime) % 60))")
                             .font(.title3)
                         
                     }
@@ -172,39 +170,37 @@ struct PlayerTimers: View {
                     }
                 }
             
-            
-            
-            // Player Card Section
-            VStack {
-                List(playerRows) { PlayerItem in
-                    HStack {
-                        TextField("Enter text", text: self.binding(for: PlayerItem))
-                            .padding()
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(height: 10)
-                            .disableAutocorrection(true)
-                        
-                        Button(action: {
-                            // Change color logic here
-                            self.toggleActivePlayer(for: PlayerItem)
-                            
-                        }) {
-                            Image(systemName: buttonSymbol(for: PlayerItem))
+                // Player Card Section
+                VStack {
+                    List(playerRows) { PlayerItem in
+                        HStack {
+                            TextField("Enter text", text: self.binding(for: PlayerItem))
                                 .padding()
-                                .background(buttonColor(for: PlayerItem))
-                                .foregroundColor(.white)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .frame(height: 10)
+                                .disableAutocorrection(true)
+                            
+                            Button(action: {
+                                // Change color logic here
+                                self.toggleActivePlayer(for: PlayerItem)
+                                
+                            }) {
+                                Image(systemName: buttonSymbol(for: PlayerItem))
+                                    .padding()
+                                    .background(buttonColor(for: PlayerItem))
+                                    .foregroundColor(.white)
+                                
+                            }
+                            .padding(.trailing)
+                            .frame(height: 10)
                             
                         }
-                        .padding(.trailing)
-                        .frame(height: 10)
-                        
                     }
                 }
-            }
-            .frame(height: 475)
+                .frame(height: 475)
             
             
-            // Doubles History Section
+                // Doubles History Section
                 ZStack() {
                     ScrollView {
                         VStack {
@@ -268,7 +264,7 @@ struct PlayerTimers: View {
                             }
                             
                         }
-                        NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
+                        NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores(roundScoresList: $roundScoresList) : nil) {
                             Text("End Session")
                         }
                         .padding()
@@ -282,6 +278,7 @@ struct PlayerTimers: View {
             }
         }
     }
+    
     private func binding(for PlayerItem: PlayerItem) -> Binding<String> {
         guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
             fatalError("Can't find PlayerItem in array")
@@ -312,9 +309,6 @@ struct PlayerTimers: View {
         }
 
         liveBallGameState()
-
-
-
     }
     
     
@@ -333,6 +327,7 @@ struct PlayerTimers: View {
         return playerRows[index].activePlayer ? "crown.fill" : "crown"
 
     }
+
     private func liveBallGameState() {
         // Minimum amount of players selected should exit out and not trigger reset logic
         
@@ -371,7 +366,7 @@ struct PlayerTimers: View {
         }
         playerSelectCount = 0
     }
-    
+
     private func resetDoublesRecord() {
         doublesRecordList = []
     }
@@ -384,7 +379,7 @@ struct PlayerTimers: View {
         print("Clean Up!")
 
     }
-    
+
     private func endRound() {
         roundScoresList.append(doublesRecordList)
         resetDoublesRecord()
@@ -392,15 +387,14 @@ struct PlayerTimers: View {
         print(roundScoresList)
         
     }
-    
-    
+
 }
 
 #Preview {
     PlayerTimers(
         selectedTennisClass: .constant("Option A"),
         numPlayers: .constant(10),
-        timePerRound: .constant(ROUND_DEFAULT_TIME)
+        timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME)
     )
 }
 

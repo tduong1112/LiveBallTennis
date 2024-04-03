@@ -26,7 +26,6 @@ struct TennisClassSelect: View {
     
     
     var body: some View {
-        Text("Tennis Class View");
         NavigationView {
             VStack(alignment: .center) {
                 TextField(
