@@ -8,14 +8,15 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_TIME = 1 * 20
+let ROUND_DEFAULT_TIME = 1 * 5
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
     @Published var elapsedRoundTime = 0
     @Published var isRunning = false
+    @Published  var timePerRound: Int
+
     private var timer: Timer?
-    private var timePerRound: Int
     
     init(timePerRound: Int) {
         self.timePerRound = timePerRound
@@ -78,6 +79,8 @@ struct PlayerTimers: View {
     
     @StateObject var stopwatchViewModel : StopwatchViewModel
     @State private var playerRows: [PlayerItem]
+    @State private var isTimerExpired = false
+
     init(selectedTennisClass: Binding<String>,
          numPlayers: Binding<Int>,
          timePerRound: Binding<Int>)
@@ -115,6 +118,12 @@ struct PlayerTimers: View {
                     .font(.title3)
 
             }
+            .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
+                if newValue >= stopwatchViewModel.timePerRound {
+                    roundOverCleanUp()
+                }
+            }
+
             HStack {
                 Text("Current Live Ball Champ: \(String(format: "%ds", stopwatchViewModel.elapsedPlayerTime))")
                     .font(.title3)
@@ -308,6 +317,15 @@ struct PlayerTimers: View {
     
     private func resetDoublesRecord() {
         doublesRecordList = []
+    }
+    
+    private func roundOverCleanUp() {
+        stopwatchViewModel.stop()
+        addDoublesRecord()
+        resetAllActivePlayers()
+        stopwatchViewModel.reset()
+        print("Clean Up!")
+
     }
     
     
