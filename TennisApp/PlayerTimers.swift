@@ -63,11 +63,16 @@ struct DoublesRecord: Identifiable {
     var player1Name: String
     var player2Name: String
     var timeSpentOnHill: Int
+    var isRoundEndingTeam: Bool
     
-    init(player1Name: String, player2Name: String , timeSpentOnHill: Int){
+    init(player1Name: String, 
+         player2Name: String ,
+         timeSpentOnHill: Int,
+         isRoundEndingTeam: Bool){
         self.player1Name = player1Name
         self.player2Name = player2Name
         self.timeSpentOnHill = timeSpentOnHill
+        self.isRoundEndingTeam = isRoundEndingTeam
         
     }
 }
@@ -100,6 +105,12 @@ struct PlayerTimers: View {
     
     
     @State private var doublesRecordList : [DoublesRecord] = [
+        /* Debug Double Records for formatting. Uncomment to use.
+        DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+        DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
+        DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
+        DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
+        */
     ]
     @State private var playerSelectCount = 0;
     
@@ -190,16 +201,26 @@ struct PlayerTimers: View {
                     VStack {
                         ForEach(0..<doublesRecordList.count, id: \.self) {index in
                             HStack {
+                                if doublesRecordList[index].isRoundEndingTeam {
+                                    Image(systemName: "crown.fill")
+                                        .frame(width: 30) // Set explicit size for the crown icon
+                                } else {
+                                    Spacer().frame(width: 30) // Spacer to maintain alignment when no crown icon is present
+                                }
+                                
                                 Text("\(doublesRecordList[index].player1Name)")
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.leading, 30)
+                                    .lineLimit(1) // Limit to one line
+
                                 
                                 Text("\(doublesRecordList[index].player2Name)")
                                     .frame(maxWidth: .infinity, alignment: .center)
+                                    .lineLimit(1) // Limit to one line
+
                                 
                                 Text(String(format: "%ds", doublesRecordList[index].timeSpentOnHill))
                                     .frame(maxWidth: .infinity, alignment: .trailing)
-                                    .padding(.trailing, 60)
+                                    .padding(.trailing, 30)
                             }
                         }
                     }
@@ -293,14 +314,14 @@ struct PlayerTimers: View {
             stopwatchViewModel.start()
         } else if playerSelectCount >= 2 && stopwatchViewModel.isRunning {
             stopwatchViewModel.stop()
-            addDoublesRecord()
+            addDoublesRecord(endOfRound: false)
             resetAllActivePlayers()
             stopwatchViewModel.reset()
         }
 
     }
     
-    private func addDoublesRecord(){
+    private func addDoublesRecord(endOfRound: Bool){
         var activePlayers : [String] = []
         for index in playerRows.indices {
             if playerRows[index].activePlayer{
@@ -311,7 +332,9 @@ struct PlayerTimers: View {
         doublesRecordList.append(DoublesRecord(
             player1Name: activePlayers[0],
             player2Name: activePlayers[1],
-            timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime))
+            timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime,
+            isRoundEndingTeam: endOfRound
+        ))
         
         doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
     }
@@ -329,7 +352,7 @@ struct PlayerTimers: View {
     
     private func roundOverCleanUp() {
         stopwatchViewModel.stop()
-        addDoublesRecord()
+        addDoublesRecord(endOfRound: true)
         resetAllActivePlayers()
         stopwatchViewModel.reset()
         print("Clean Up!")
