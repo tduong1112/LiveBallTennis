@@ -11,10 +11,10 @@ struct TennisClassSelect: View {
     @State private var classOptions = ["Option A", "Option B", "Option C"]
     @State private var newItem = ""
     @State private var selectedClass = "Option 1"
-    @State private var numPlayers = 2;
+    @State private var numPlayers = 4;
     @State private var timePerRound = 15;
 
-    let numberPlayersPickerList = Array(2...10) // Example range from 1 to 10
+    let numberPlayersPickerList = Array(4...10) // Example range from 1 to 10
     
     let timePerRoundPickerList: [Int] = {
         var array: [Int] = []

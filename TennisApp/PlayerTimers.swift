@@ -168,7 +168,7 @@ struct PlayerTimers: View {
                         self.toggleActivePlayer(for: PlayerItem)
                         
                     }) {
-                        Text("\(PlayerItem.activePlayer)")
+                        Image(systemName: buttonSymbol(for: PlayerItem))
                             .padding()
                             .background(buttonColor(for: PlayerItem))
                             .foregroundColor(.white)
@@ -277,6 +277,14 @@ struct PlayerTimers: View {
             return .blue
         }
         return playerRows[index].activePlayer ? .red : .blue
+    }
+    
+    private func buttonSymbol(for PlayerItem: PlayerItem) -> String {
+        guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
+            return "crown.fill"
+        }
+        return playerRows[index].activePlayer ? "crown.fill" : "crown"
+
     }
     private func liveBallGameState() {
         // Minimum amount of players selected should exit out and not trigger reset logic
