@@ -169,15 +169,17 @@ struct PlayerTimers: View {
                 .frame(maxWidth: .infinity, alignment: .top)
                 .background(Color.black)
                 .foregroundColor(Color.white)
-
-                NavigationLink(destination:SubmitPlayerScores()) {
-                    Text("Submit Scores")
+                if !doublesRecordList.isEmpty {
+                    
+                    NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores() : nil) {
+                        Text("Submit Scores")
+                    }
+                    .padding()
+                    .foregroundColor(Color.black)
+                    .background(Color.white)
+                    .opacity(0.5)
+                    .frame(alignment: .bottom)
                 }
-                .padding()
-                .foregroundColor(Color.black)
-                .background(Color.white)
-                .opacity(0.5)
-                .frame(alignment: .bottom)
             }
         }
     }
