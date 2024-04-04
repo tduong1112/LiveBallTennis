@@ -144,7 +144,7 @@ struct PlayerTimers: View {
                 }
                 
                 HStack {
-                    Text("Current Live Ball Champ: \(String(format: "%ds", stopwatchViewModel.elapsedPlayerTime))")
+                    Text("Current Live Ball Champ: \(String(format: "%dm %ds", stopwatchViewModel.elapsedPlayerTime/60, stopwatchViewModel.elapsedPlayerTime % 60))")
                         .font(.title3)
                     /* //Optional Debug Stopwatch Buttons
                      HStack {
@@ -225,7 +225,7 @@ struct PlayerTimers: View {
                                         .lineLimit(1) // Limit to one line
                                     
                                     
-                                    Text(String(format: "%ds", doublesRecordList[index].timeSpentOnHill))
+                                    Text(String(format: "%dm %ds", doublesRecordList[index].timeSpentOnHill/60, doublesRecordList[index].timeSpentOnHill % 60))
                                         .frame(maxWidth: .infinity, alignment: .trailing)
                                         .padding(.trailing, 30)
                                 }
