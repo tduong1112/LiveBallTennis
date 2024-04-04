@@ -32,9 +32,13 @@ struct SubmitPlayerScores: View {
                 
             }
             if let sessionMaxTime = getBestTime(forSession: roundScoresList) {
-                Text("Session Best Time")
-                    .font(.title)
+                HStack {
+                    Image(systemName: "trophy")
+                    Text("Session Best Time")
+                        .font(.title)
+                }
                 Text("\(sessionMaxTime.timeSpentOnHill) seconds by \(sessionMaxTime.player1Name) and \(sessionMaxTime.player2Name)")
+           
             }
         }
     }

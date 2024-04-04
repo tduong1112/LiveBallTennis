@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct TennisAppApp: App {
+struct LiveBall: App {
     var body: some Scene {
         WindowGroup {
             TennisClassSelect()
