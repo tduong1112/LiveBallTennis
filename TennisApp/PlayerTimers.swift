@@ -8,7 +8,7 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_PREVIEW_TIME = 1 * 60
+let ROUND_DEFAULT_PREVIEW_TIME = 15
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
@@ -94,9 +94,10 @@ struct PlayerTimers: View {
     @State private var playerSelectCount = 0;
     @State private var doublesRecordList : [DoublesRecord] = [
          //Debug Double Records for formatting. Uncomment to use.
+        /*
+
         DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
         DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
-        /*
         DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
         DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
         */
@@ -197,82 +198,84 @@ struct PlayerTimers: View {
                         }
                     }
                 }
-                .frame(height: 475)
+                .frame(height: 340)
             
             
                 // Doubles History Section
-                ZStack() {
-                    ScrollView {
-                        VStack {
-                            ForEach(0..<doublesRecordList.count, id: \.self) {index in
-                                HStack {
-                                    if doublesRecordList[index].isRoundEndingTeam {
-                                        Image(systemName: "crown.fill")
-                                            .frame(width: 30) // Set explicit size for the crown icon
-                                    } else {
-                                        Spacer().frame(width: 30) // Spacer to maintain alignment when no crown icon is present
+                VStack() {
+                    ZStack() {
+                        ScrollView {
+                            VStack {
+                                ForEach(0..<doublesRecordList.count, id: \.self) {index in
+                                    HStack {
+                                        if doublesRecordList[index].isRoundEndingTeam {
+                                            Image(systemName: "crown.fill")
+                                                .frame(width: 30) // Set explicit size for the crown icon
+                                        } else {
+                                            Spacer().frame(width: 30) // Spacer to maintain alignment when no crown icon is present
+                                        }
+                                        
+                                        Text("\(doublesRecordList[index].player1Name)")
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .lineLimit(1) // Limit to one line
+                                        
+                                        
+                                        Text("\(doublesRecordList[index].player2Name)")
+                                            .frame(maxWidth: .infinity, alignment: .center)
+                                            .lineLimit(1) // Limit to one line
+                                        
+                                        
+                                        Text(String(format: "%ds", doublesRecordList[index].timeSpentOnHill))
+                                            .frame(maxWidth: .infinity, alignment: .trailing)
+                                            .padding(.trailing, 30)
                                     }
-                                    
-                                    Text("\(doublesRecordList[index].player1Name)")
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                        .lineLimit(1) // Limit to one line
-                                    
-                                    
-                                    Text("\(doublesRecordList[index].player2Name)")
-                                        .frame(maxWidth: .infinity, alignment: .center)
-                                        .lineLimit(1) // Limit to one line
-                                    
-                                    
-                                    Text(String(format: "%ds", doublesRecordList[index].timeSpentOnHill))
-                                        .frame(maxWidth: .infinity, alignment: .trailing)
-                                        .padding(.trailing, 30)
                                 }
                             }
                         }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .top)
-                    .background(Color.black)
-                    .foregroundColor(Color.white)
-                    
-                    // End Round/Session/ Clear Doubles Table Buttons
-                    HStack {
-                        if !doublesRecordList.isEmpty {
-                            
-                            Button(action: {
-                                // Change color logic here
-                                self.endRound()
-                                
-                            }) {
-                                Text("End Round")
-                                    .padding()
-                                    .foregroundColor(Color.black)
-                                    .background(Color.white)
-                                    .opacity(0.5)
-                                    .frame(alignment: .bottom)
-                            }
-                            Button(action: {
-                                // Change color logic here
-                                self.resetDoublesRecord()
-                                
-                            }) {
-                                Text("Clear")
-                                    .padding()
-                                    .foregroundColor(Color.black)
-                                    .background(Color.white)
-                                    .opacity(0.5)
-                                    .frame(alignment: .bottom)
-                            }
-                            
-                        }
-                        NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores(roundScoresList: $roundScoresList) : nil) {
-                            Text("End Session")
-                        }
-                        .padding()
-                        .foregroundColor(Color.black)
-                        .background(Color.white)
-                        .opacity(0.5)
-                        .frame(alignment: .bottom)
+                        .frame(maxWidth: .infinity, alignment: .top)
+                        .background(Color.black)
+                        .foregroundColor(Color.white)
                         
+                        // End Round/Session/ Clear Doubles Table Buttons
+                        HStack {
+                            if !doublesRecordList.isEmpty {
+                                
+                                Button(action: {
+                                    // Change color logic here
+                                    self.endRound()
+                                    
+                                }) {
+                                    Text("End Round")
+                                        .padding()
+                                        .foregroundColor(Color.black)
+                                        .background(Color.white)
+                                        .opacity(0.5)
+                                        .frame(alignment: .bottom)
+                                }
+                                Button(action: {
+                                    // Change color logic here
+                                    self.resetDoublesRecord()
+                                    
+                                }) {
+                                    Text("Clear")
+                                        .padding()
+                                        .foregroundColor(Color.black)
+                                        .background(Color.white)
+                                        .opacity(0.5)
+                                        .frame(alignment: .bottom)
+                                }
+                                
+                            }
+                            NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores(roundScoresList: $roundScoresList) : nil) {
+                                Text("End Session")
+                            }
+                            .padding()
+                            .foregroundColor(Color.black)
+                            .background(Color.white)
+                            .opacity(0.5)
+                            .frame(alignment: .bottom)
+                            
+                        }
                     }
                 }
             }
@@ -296,7 +299,6 @@ struct PlayerTimers: View {
         }
         if (playerRows[index].activePlayer && stopwatchViewModel.isRunning ){
             stopwatchViewModel.stop()
-            stopwatchViewModel.reset()
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
 
@@ -330,6 +332,10 @@ struct PlayerTimers: View {
 
     private func liveBallGameState() {
         // Minimum amount of players selected should exit out and not trigger reset logic
+        
+        if playerSelectCount == 0 && !stopwatchViewModel.isRunning {
+            stopwatchViewModel.reset()
+        }
         
         if playerSelectCount >= 2 && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()

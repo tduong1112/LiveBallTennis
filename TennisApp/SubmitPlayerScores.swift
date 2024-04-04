@@ -21,6 +21,8 @@ struct SubmitPlayerScores: View {
             Text("\(roundScoresList[0])")
         }
     }
+    
+    
 }
 struct SubmitPlayerScores_Previews: PreviewProvider {
     static var previews: some View {
