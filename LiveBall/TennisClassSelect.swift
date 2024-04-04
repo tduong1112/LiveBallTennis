@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct TennisClassSelect: View {
-    @State private var classOptions = ["Option A", "Option B", "Option C"]
+    @State private var classOptions = ["FortuneTennis 3.5",
+                                       "FortuneTennis 3.5-4.0+",
+                                       "FortuneTennis 4.0",
+                                       "FortuneTennis 4.5",
+                                       "FortuneTennis 5.0",
+                                       ]
     @State private var newItem = ""
     @State private var selectedClass = "Option 1"
     @State private var numPlayers = 4;
