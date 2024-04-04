@@ -88,6 +88,7 @@ struct PlayerTimers: View {
     @Binding var timePerRound: Int
     
     @StateObject var stopwatchViewModel : StopwatchViewModel
+    @State private var showingErrorAlert = false
     @State private var playerRows: [PlayerItem]
     @State private var isTimerExpired = false
     @State private var roundCount = 1
@@ -250,13 +251,25 @@ struct PlayerTimers: View {
                             Text("End Round")
                         }
                         .buttonStyle(.borderedProminent)
-
+                        
                     }
-                    NavigationLink(destination: doublesRecordList.count >= 1 ? SubmitPlayerScores(roundScoresList: $roundScoresList) : nil) {
-                        Text("End Session")
+                    if roundScoresList.count >= 1 {
+                        NavigationLink(destination: SubmitPlayerScores(roundScoresList: $roundScoresList)) {
+                            Text("End Session")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    } else {
+                        Button(action: {
+                            // Display error message here
+                            self.showingErrorAlert = true
+                        }) {
+                            Text("End Session")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .alert(isPresented: $showingErrorAlert) {
+                            Alert(title: Text("Error"), message: Text("No rounds recorded. Cannot end session."), dismissButton: .default(Text("OK")))
+                        }
                     }
-                    .buttonStyle(.borderedProminent)
-
                 }
             }
         }
@@ -379,7 +392,7 @@ struct PlayerTimers: View {
 
 #Preview {
     PlayerTimers(
-        selectedTennisClass: .constant("Option A"),
+        selectedTennisClass: .constant("FortuneTennis 3.5"),
         numPlayers: .constant(10),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME)
     )
