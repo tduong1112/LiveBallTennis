@@ -26,7 +26,7 @@ struct SubmitPlayerScores: View {
                 }
                 
                 if let roundMaxTime = getBestTime(forRound: roundScoresList[index]) {
-                    Text("Best Time: \(roundMaxTime.timeSpentOnHill) seconds by \(roundMaxTime.player1Name) and \(roundMaxTime.player2Name)")
+                    Text("Best Time: \(roundMaxTime.timeSpentOnHill / 60)m \(roundMaxTime.timeSpentOnHill % 60)s by \(roundMaxTime.player1Name) and \(roundMaxTime.player2Name)")
                 }
                 Spacer()
                 
@@ -37,7 +37,7 @@ struct SubmitPlayerScores: View {
                     Text("Session Best Time")
                         .font(.title)
                 }
-                Text("\(sessionMaxTime.timeSpentOnHill) seconds by \(sessionMaxTime.player1Name) and \(sessionMaxTime.player2Name)")
+                Text("\(sessionMaxTime.timeSpentOnHill / 60)m \(sessionMaxTime.timeSpentOnHill % 60)s by \(sessionMaxTime.player1Name) and \(sessionMaxTime.player2Name)")
            
             }
         }
