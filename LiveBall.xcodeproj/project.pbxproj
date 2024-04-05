@@ -17,6 +17,7 @@
 		8858C5F52BBA60B4001391E8 /* PlayerTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */; };
 		8858C5F72BBB6BA0001391E8 /* Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F62BBB6BA0001391E8 /* Sandbox.swift */; };
 		8858C5F92BBCCD26001391E8 /* SubmitPlayerScores.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F82BBCCD26001391E8 /* SubmitPlayerScores.swift */; };
+		8858C5FE2BC0B505001391E8 /* SessionOptionSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5FD2BC0B504001391E8 /* SessionOptionSelect.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTimers.swift; sourceTree = "<group>"; };
 		8858C5F62BBB6BA0001391E8 /* Sandbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sandbox.swift; sourceTree = "<group>"; };
 		8858C5F82BBCCD26001391E8 /* SubmitPlayerScores.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitPlayerScores.swift; sourceTree = "<group>"; };
+		8858C5FC2BC08A7E001391E8 /* Liveball_Icon_WhiteBkgrd_1800.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Liveball_Icon_WhiteBkgrd_1800.jpeg; sourceTree = "<group>"; };
+		8858C5FD2BC0B504001391E8 /* SessionOptionSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionOptionSelect.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +104,7 @@
 		8858C5C62BBA2009001391E8 /* LiveBall */ = {
 			isa = PBXGroup;
 			children = (
+				8858C5FC2BC08A7E001391E8 /* Liveball_Icon_WhiteBkgrd_1800.jpeg */,
 				8858C5C72BBA2009001391E8 /* LiveBall.swift */,
 				8858C5CB2BBA200A001391E8 /* Assets.xcassets */,
 				8858C5CD2BBA200A001391E8 /* LiveBall.entitlements */,
@@ -109,6 +113,7 @@
 				8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */,
 				8858C5F62BBB6BA0001391E8 /* Sandbox.swift */,
 				8858C5F82BBCCD26001391E8 /* SubmitPlayerScores.swift */,
+				8858C5FD2BC0B504001391E8 /* SessionOptionSelect.swift */,
 			);
 			path = LiveBall;
 			sourceTree = "<group>";
@@ -271,6 +276,7 @@
 				8858C5C82BBA2009001391E8 /* LiveBall.swift in Sources */,
 				8858C5F32BBA5DF7001391E8 /* TennisClassSelect.swift in Sources */,
 				8858C5F92BBCCD26001391E8 /* SubmitPlayerScores.swift in Sources */,
+				8858C5FE2BC0B505001391E8 /* SessionOptionSelect.swift in Sources */,
 				8858C5F52BBA60B4001391E8 /* PlayerTimers.swift in Sources */,
 				8858C5F72BBB6BA0001391E8 /* Sandbox.swift in Sources */,
 			);
@@ -426,7 +432,6 @@
 		8858C5EA2BBA200A001391E8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LiveBall/LiveBall.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -465,7 +470,6 @@
 		8858C5EB2BBA200A001391E8 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = LiveBall/LiveBall.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";

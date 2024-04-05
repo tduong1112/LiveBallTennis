@@ -7,93 +7,70 @@
 
 import SwiftUI
 
+let DEFAULT_CREATE_CLASS_OPTION = "Create a class"
+
 struct TennisClassSelect: View {
-    @State private var classOptions = ["FortuneTennis 3.5",
+    @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION,
+                                       "FortuneTennis 3.5",
                                        "FortuneTennis 3.5-4.0+",
                                        "FortuneTennis 4.0",
                                        "FortuneTennis 4.5",
                                        "FortuneTennis 5.0",
                                        ]
-    @State private var newItem = ""
-    @State private var selectedClass = "Option 1"
-    @State private var numPlayers = 4;
-    @State private var timePerRound = 15;
+    @State private var newClassName = ""
+    @State private var selectedClass = DEFAULT_CREATE_CLASS_OPTION
+
+    @State private var showAlert = false // Alert state
 
     let numberPlayersPickerList = Array(4...10) // Example range from 1 to 10
     
-    let timePerRoundPickerList: [Int] = {
-        var array: [Int] = []
-        for i in stride(from: 5, through: 30, by: 5) {
-            array.append(i)
-        }
-        return array
-    }()
+    let timePerRoundPickerList = Array(1...30)
     
     
     var body: some View {
         NavigationView {
-            VStack(alignment: .center) {
-                TextField(
-                    "Enter New Class",
-                    text: $newItem
-                )
-                .padding()
-
-                
-                Button(action: {
-                    self.classOptions.append(self.newItem)
-                    self.newItem = ""
-                }) {
-                    Text("Add Class to List")
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-
+            VStack {
+                Text("Create A Game")
+                    .font(.title)
+                HStack {
+                    Text("Name of Class:")
+                    Picker("Select an option", selection: $selectedClass) {
+                        ForEach(classOptions, id: \.self) { option in
+                            Text(option)
+                        }
+                    }
+                    .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
                 }
-                Spacer()
-                VStack{
-                    Text("Create A Game")
-                        .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
-                    HStack{
-                        Text("Name of Class:")
-                        Picker("Select an option", selection: $selectedClass) {
-                            ForEach(classOptions, id: \.self) { option in
-                                Text(option)
-                            }
-                        }
-                        .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
-                    }
-                    HStack{
-                        Text("Number of Players:")
-                        Picker("Num Players", selection: $numPlayers) {
-                            ForEach(numberPlayersPickerList, id: \.self) { num in
-                                Text("\(num)")
-                            }
-                        }
-                        .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
-                    }
-                    
-                    HStack{
-                        Text("Time Per Round")
-                        Picker("Time Per Round", selection: $timePerRound) {
-                            ForEach(timePerRoundPickerList, id: \.self) { num in
-                                Text("\(num)")
-                            }
-                        }
-                        .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
-                    }
-
-                    NavigationLink(destination:PlayerTimers(
-                        selectedTennisClass: $selectedClass,
-                        numPlayers: $numPlayers,
-                        timePerRound: $timePerRound))
-                    {
-                        Text("Select")
-                            .padding()
-                            .frame(width: 100, height:100);
-
-                    }
+                if selectedClass == DEFAULT_CREATE_CLASS_OPTION {
+                    TextField(
+                        "Enter Class Name",
+                        text: $newClassName
+                    )
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(width:300)
                 }
+                if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
+                    NavigationLink(destination: SessionOptionSelect(selectedTennisClass: $selectedClass)) {
+                        Text("Create Session")
+                    }
+                    .buttonStyle(.borderedProminent)
+                 } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
+                    NavigationLink(destination: SessionOptionSelect(selectedTennisClass: $newClassName)) {
+                        Text("Create Session")
+                    }
+                    .buttonStyle(.borderedProminent)
+                 } else {
+                     Button(action: {
+                         // Display error message here
+                         self.showAlert = true
+                     }) {
+                         Text("Create Session")
+                     }
+                     .buttonStyle(.borderedProminent)
+                     .alert(isPresented: $showAlert) {
+                         Alert(title: Text("Error"), message: Text("Session Created Name is empty"), dismissButton: .default(Text("OK")))
+                     }
+                 }
             }
         }
     }
