@@ -98,9 +98,12 @@ struct SessionOptionSelect: View {
             }
             .padding()
 
-            
-
         }
+        NavigationLink(destination: PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound)) {
+            Text("Create Session")
+        }
+        .buttonStyle(.borderedProminent)
+
         
     }
 }

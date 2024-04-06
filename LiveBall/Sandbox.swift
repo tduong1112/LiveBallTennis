@@ -31,22 +31,9 @@ struct MyStruct: Identifiable {
 }
 struct Sandbox: View {
 
-    @State private var rows: [PlayerItem] = {
-        var array = [PlayerItem]()
-        for _ in 0..<5 {
-            array.append(PlayerItem())
-        }
-        return array
-    }()
-
-    @State private var currentDate = Date.now
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        Text("\(currentDate)")
-            .onReceive(timer) { input in
-                currentDate = input
-            }
+        Text("Sandbox")
     }
 }
 

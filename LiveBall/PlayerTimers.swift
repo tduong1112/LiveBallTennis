@@ -53,11 +53,11 @@ class StopwatchViewModel: ObservableObject {
 
 struct PlayerItem: Identifiable {
     var id = UUID()
-    var textFieldText: String
     var activePlayer: Bool
+    var playerName: String
     
-    init() {
-        self.textFieldText = ""
+    init(playerName: String) {
+        self.playerName = playerName
         self.activePlayer = false
     }
     
@@ -83,13 +83,13 @@ struct DoublesRecord: Identifiable {
 }
 
 struct PlayerTimers: View {
-    @Binding var selectedTennisClass: String
-    @Binding var numPlayers : Int
+    @Binding var playerNames : [String]
     @Binding var timePerRound: Int
     
     @StateObject var stopwatchViewModel : StopwatchViewModel
-    @State private var showingErrorAlert = false
     @State private var playerRows: [PlayerItem]
+
+    @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
     @State private var roundCount = 1
     @State private var roundScoresList: [[DoublesRecord]] = []
@@ -104,21 +104,22 @@ struct PlayerTimers: View {
         DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
         */
     ]
+    let columns = [
+        GridItem(.fixed(100)),
+        GridItem(.fixed(100)),
+        GridItem(.fixed(100))
+    ]
     
 
-    init(selectedTennisClass: Binding<String>,
-         numPlayers: Binding<Int>,
+    init(playerNames: Binding<[String]>,
          timePerRound: Binding<Int>)
     {
-        _selectedTennisClass = selectedTennisClass
-        _numPlayers = numPlayers
+        _playerNames = playerNames
         _timePerRound = timePerRound
-        
         _stopwatchViewModel = StateObject(wrappedValue: StopwatchViewModel(timePerRound: timePerRound.wrappedValue))
 
-        _playerRows = State(initialValue: (0..<numPlayers.wrappedValue).map{
-                _ in PlayerItem()
-            } )
+        playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }
+
 
     }
        
@@ -173,36 +174,30 @@ struct PlayerTimers: View {
             }
         
             // Player Card Section
-            VStack {
-                List(playerRows) { PlayerItem in
-                    HStack {
-                        TextField("Enter text", text: self.binding(for: PlayerItem))
-                            .padding()
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .frame(height: 10)
-                            .disableAutocorrection(true)
-                        
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 10) {
+                    ForEach(playerRows, id: \.id) { player in
                         Button(action: {
-                            // Change color logic here
-                            self.toggleActivePlayer(for: PlayerItem)
-                            
+                            // Handle button tap action here
+                            self.toggleActivePlayer(for: player)
                         }) {
-                            Image(systemName: buttonSymbol(for: PlayerItem))
+                            Text(player.playerName)
                                 .padding()
-                                .background(buttonColor(for: PlayerItem))
+                                .frame(width: 100, height: 100) // Set fixed size for each button
                                 .foregroundColor(.white)
-                            
+                                .cornerRadius(10)
+                                .background(buttonColor(for: player))
                         }
-                        .padding(.trailing)
-                        .frame(height: 10)
+                        .buttonStyle(PlainButtonStyle()) // Remove default button styling
                         
                     }
                 }
+                .padding()
             }
-            .frame(height: 340)
         
         
             // Doubles History Section
+            
             VStack() {
                 ZStack() {
                     ScrollView {
@@ -273,40 +268,34 @@ struct PlayerTimers: View {
                 }
             }
         }
+    }
+    
+    private func toggleActivePlayer(for playerItem: PlayerItem) {
+        guard let index = playerRows.firstIndex(where: { $0.id == playerItem.id }) else {
+            return
+        }
         
-    }
-    
-    private func binding(for PlayerItem: PlayerItem) -> Binding<String> {
-        guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
-            fatalError("Can't find PlayerItem in array")
-        }
-        return $playerRows[index].textFieldText
-    }
-    
-    private func toggleActivePlayer(for PlayerItem: PlayerItem) {
-        guard let index = playerRows.firstIndex(where: { $0.id == PlayerItem.id }) else {
-            return
-        }
-        // Make sure an empty name is not submitted
-        if playerRows[index].textFieldText.isEmpty{
-            return
-        }
-        if (playerRows[index].activePlayer && stopwatchViewModel.isRunning ){
-            stopwatchViewModel.stop()
-            playerRows[index].activePlayer.toggle()
-            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
-
-        } else if (stopwatchViewModel.isRunning) {
-            liveBallGameState()
-
-        } else {
+        if !playerRows[index].activePlayer && !stopwatchViewModel.isRunning {
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
         }
 
-        liveBallGameState()
+        if !playerRows[index].activePlayer && stopwatchViewModel.isRunning {
+            handleTimerStopped(for: index)
+        }
+        if playerSelectCount >= 2 && !stopwatchViewModel.isRunning {
+            stopwatchViewModel.start()
+        }
     }
-    
+
+    private func handleTimerStopped(for index: Int) {
+        stopwatchViewModel.stop()
+        addDoublesRecord(endOfRound: false)
+        stopwatchViewModel.reset()
+        resetAllActivePlayers()
+        playerRows[index].activePlayer.toggle()
+        playerSelectCount += playerRows[index].activePlayer ? 1 : -1
+    }
     
     // Toggling Logic for the color. Selects which color based on that PlayerItem's active Status
     private func buttonColor(for PlayerItem: PlayerItem) -> Color {
@@ -324,29 +313,14 @@ struct PlayerTimers: View {
 
     }
 
-    private func liveBallGameState() {
-        // Minimum amount of players selected should exit out and not trigger reset logic
-        
-        if playerSelectCount == 0 && !stopwatchViewModel.isRunning {
-            stopwatchViewModel.reset()
-        }
-        
-        if playerSelectCount >= 2 && !stopwatchViewModel.isRunning {
-            stopwatchViewModel.start()
-        } else if playerSelectCount >= 2 && stopwatchViewModel.isRunning {
-            stopwatchViewModel.stop()
-            addDoublesRecord(endOfRound: false)
-            resetAllActivePlayers()
-            stopwatchViewModel.reset()
-        }
 
-    }
     
     private func addDoublesRecord(endOfRound: Bool){
         var activePlayers : [String] = []
+        
         for index in playerRows.indices {
             if playerRows[index].activePlayer{
-                activePlayers.append(playerRows[index].textFieldText)
+                activePlayers.append(playerRows[index].playerName)
             }
         }
         
@@ -373,7 +347,6 @@ struct PlayerTimers: View {
     
     private func roundOverCleanUp() {
         stopwatchViewModel.stop()
-        addDoublesRecord(endOfRound: true)
         resetAllActivePlayers()
         stopwatchViewModel.reset()
         print("Clean Up!")
@@ -387,13 +360,15 @@ struct PlayerTimers: View {
         print(roundScoresList)
         
     }
-
 }
 
 #Preview {
     PlayerTimers(
-        selectedTennisClass: .constant("FortuneTennis 3.5"),
-        numPlayers: .constant(10),
+        playerNames: .constant(["asdf", "bweaewaveaveaw", "graphic", 
+                                "manny", "who that", "feafe",
+                                "player1", "Player2", "feafe",
+                                "bweaewaveaveaw", "who that", "feafe",
+                                "manny", "who that", "feafe"]),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME)
     )
 }
