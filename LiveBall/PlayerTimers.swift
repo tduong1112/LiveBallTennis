@@ -8,7 +8,7 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_PREVIEW_TIME = 1
+let ROUND_DEFAULT_PREVIEW_TIME = 15
 let SECONDS_PER_MINUTE = 60
 
 class StopwatchViewModel: ObservableObject {
@@ -91,10 +91,13 @@ struct PlayerTimers: View {
     
     @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
-    @State private var roundCount = 1
-    @State private var roundScoresList: [[DoublesRecord]] = []
-    @State private var playerSelectCount = 0;
     @State private var endRoundChampsSelected = false
+
+    @State private var roundCount = 1
+    @State private var playerSelectCount = 0;
+
+    @State private var roundScoresList: [[DoublesRecord]] = []
+    @State private var champsSelected: [PlayerItem] = []
     @State private var doublesRecordList : [DoublesRecord] = [
         //Debug Double Records for formatting. Uncomment to use.
         /*
@@ -132,12 +135,17 @@ struct PlayerTimers: View {
         VStack{
             VStack{
                 HStack {
-                    Text("Time Left in Round: ")
-                        .font(.title)
-                    
-                    Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
-                        .font(.title)
-                        .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+                    if endRoundChampsSelected {
+                        Text("Round Ended")
+                            .font(.title)
+                    } else {
+                        Text("Time Left in Round: ")
+                            .font(.title)
+                        
+                        Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
+                            .font(.title)
+                            .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+                    }
 
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
@@ -175,7 +183,38 @@ struct PlayerTimers: View {
             }
             
             // Player Card Section
-            ScrollView {
+            VStack {
+                HStack {
+                    if champsSelected.count == 2 {
+                        Image(systemName: "crown.fill")
+                                    .foregroundColor(.yellow)
+                                
+                        ZStack {
+                            // Red colored rectangle
+                            Rectangle()
+                                .fill(Color.red)
+                                .frame(width: 150, height: 50)
+                                .cornerRadius(10)
+                            
+                            // Text inside the rectangle
+                            Text("\(champsSelected[0].playerName)")
+                                .foregroundColor(.white)
+                        }
+                        
+                        ZStack {
+                            // Red colored rectangle
+                            Rectangle()
+                                .fill(Color.red)
+                                .frame(width: 150, height: 50)
+                                .cornerRadius(10)
+                            
+                            // Text inside the rectangle
+                            Text("\(champsSelected[1].playerName)")
+                                .foregroundColor(.white)
+                        }
+
+                    }
+                }
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(playerRows, id: \.id) { player in
                         Button(action: {
@@ -195,6 +234,7 @@ struct PlayerTimers: View {
                 }
                 .padding()
             }
+            
             
             
             // Doubles History Section
@@ -238,15 +278,26 @@ struct PlayerTimers: View {
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
                     if !doublesRecordList.isEmpty {
-                        
-                        Button(action: {
-                            // Change color logic here
-                            self.endRound()
-                            
-                        }) {
-                            Text("End Round")
+                        if endRoundChampsSelected {
+                            Button(action: {
+                                // Change color logic here
+                                self.nextRound()
+                                
+                            }) {
+                                Text("Next Round")
+                            }
+                            .buttonStyle(.borderedProminent)
+
+                        } else {
+                            Button(action: {
+                                // Change color logic here
+                                self.endRound()
+                                
+                            }) {
+                                Text("End Round")
+                            }
+                            .buttonStyle(.borderedProminent)
                         }
-                        .buttonStyle(.borderedProminent)
                         
                     }
                     if roundScoresList.count >= 1 {
@@ -275,6 +326,11 @@ struct PlayerTimers: View {
         guard let index = playerRows.firstIndex(where: { $0.id == playerItem.id }) else {
             return
         }
+        
+        if endRoundChampsSelected {
+            return
+        }
+
         if playerSelectCount < DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
@@ -282,8 +338,11 @@ struct PlayerTimers: View {
         
         if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()
+            addChampButtonView()
+            removeActivePlayers()
         } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
             stopwatchViewModel.stop()
+            returnChampsBackToPlayerList()
             addDoublesRecord(endOfRound: false)
             stopwatchViewModel.reset()
             resetAllActivePlayers()
@@ -308,6 +367,30 @@ struct PlayerTimers: View {
         return playerRows[index].activePlayer ? "crown.fill" : "crown"
         
     }
+    
+    private func addChampButtonView() {
+        
+        for index in playerRows.indices {
+            if playerRows[index].activePlayer{
+                champsSelected.append(playerRows[index])
+            }
+        }
+    }
+
+    private func removeActivePlayers() {
+        // Filter out the items where activePlayer is true
+        let filteredPlayerRows = playerRows.filter { !$0.activePlayer }
+
+        // Update the @State property with the filtered list
+        playerRows = filteredPlayerRows
+    }
+    
+    private func returnChampsBackToPlayerList() {
+        playerRows.append(champsSelected[0])
+        playerRows.append(champsSelected[1])
+        champsSelected = []
+    }
+
     
     private func addDoublesRecord(endOfRound: Bool){
         var activePlayers : [String] = []
@@ -344,17 +427,69 @@ struct PlayerTimers: View {
         addDoublesRecord(endOfRound : false)
         resetAllActivePlayers()
         stopwatchViewModel.reset()
-        print("Clean Up!")
         
     }
     
     private func endRound() {
-        stopwatchViewModel.stop()
         roundScoresList.append(doublesRecordList)
+        stopwatchViewModel.stop()
+        resetAllActivePlayers()
+        selectChamps()
+
+    }
+    
+    private func selectChamps() {
+        let alertController = UIAlertController(title: "Select Champions", message: "Choose two champions", preferredStyle: .alert)
+        
+        // Replace these placeholders with your actual list of champions
+        let champions = ["Champion 1", "Champion 2", "Champion 3", "Champion 4"]
+        
+        // Keep track of selected champions
+        var selectedChampions = Set<String>()
+        
+        // Handler for when a champion is selected
+        let championSelectionHandler: (UIAlertAction) -> Void = { action in
+            // Here, you can handle the selected champions
+            print("Selected Champions: \(selectedChampions)")
+        }
+        
+        // Add checkboxes for each champion in the list
+        for champion in champions {
+            let action = UIAlertAction(title: champion, style: .default) { _ in
+                // Toggle selection
+                if selectedChampions.contains(champion) {
+                    selectedChampions.remove(champion)
+                } else {
+                    selectedChampions.insert(champion)
+                }
+            }
+            alertController.addAction(action)
+        }
+        
+        // Add OK action
+        let okAction = UIAlertAction(title: "OK", style: .default, handler: championSelectionHandler)
+        alertController.addAction(okAction)
+        
+        // Add cancel action
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        // Present the alert controller
+        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
+            topViewController.present(alertController, animated: true, completion: nil)
+        }
+        endRoundChampsSelected = true
+    }
+
+
+    
+    private func nextRound() {
+        stopwatchViewModel.stop()
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
         endRoundChampsSelected = false
+
     }
 
 }
@@ -363,8 +498,6 @@ struct PlayerTimers: View {
     PlayerTimers(
         playerNames: .constant(["asdf", "bweaewaveaveaw", "graphic", 
                                 "manny", "who that", "feafe",
-                                "player1", "Player2", "feafe",
-                                "bweaewaveaveaw", "who that", "feafe",
                                 "manny", "who that", "feafe"]),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME)
     )
