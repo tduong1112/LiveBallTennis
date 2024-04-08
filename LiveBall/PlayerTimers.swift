@@ -9,7 +9,7 @@ import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
 let ROUND_DEFAULT_PREVIEW_TIME = 15
-let SECONDS_PER_MINUTE = 1
+let SECONDS_PER_MINUTE = 60
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
@@ -97,7 +97,7 @@ struct PlayerTimers: View {
     @State private var playerSelectCount = 0;
 
     @State private var roundScoresList: [[DoublesRecord]] = []
-    @State private var champsSelected: [PlayerItem] = []
+    @State private var championsSelected: [PlayerItem] = []
     @State private var doublesRecordList : [DoublesRecord] = [
         //Debug Double Records for formatting. Uncomment to use.
         /*
@@ -185,7 +185,7 @@ struct PlayerTimers: View {
             // Player Card Section
             VStack {
                 HStack {
-                    if champsSelected.count == 2 {
+                    if championsSelected.count == 2 {
                         Image(systemName: "crown.fill")
                                     .foregroundColor(.yellow)
                                 
@@ -197,7 +197,7 @@ struct PlayerTimers: View {
                                 .cornerRadius(10)
                             
                             // Text inside the rectangle
-                            Text("\(champsSelected[0].playerName)")
+                            Text("\(championsSelected[0].playerName)")
                                 .foregroundColor(.white)
                         }
                         
@@ -209,7 +209,7 @@ struct PlayerTimers: View {
                                 .cornerRadius(10)
                             
                             // Text inside the rectangle
-                            Text("\(champsSelected[1].playerName)")
+                            Text("\(championsSelected[1].playerName)")
                                 .foregroundColor(.white)
                         }
 
@@ -375,7 +375,7 @@ struct PlayerTimers: View {
         
         for index in playerRows.indices {
             if playerRows[index].activePlayer{
-                champsSelected.append(playerRows[index])
+                championsSelected.append(playerRows[index])
             }
         }
         removeActivePlayers()
@@ -391,16 +391,16 @@ struct PlayerTimers: View {
     }
     
     private func returnChampsBackToPlayerList() {
-        playerRows.append(champsSelected[0])
-        playerRows.append(champsSelected[1])
-        champsSelected = []
+        playerRows.append(championsSelected[0])
+        playerRows.append(championsSelected[1])
+        championsSelected = []
     }
 
     
     private func addDoublesRecord(endOfRound: Bool){
         doublesRecordList.append(DoublesRecord(
-            player1Name: champsSelected[0].playerName,
-            player2Name: champsSelected[1].playerName,
+            player1Name: championsSelected[0].playerName,
+            player2Name: championsSelected[1].playerName,
             timeSpentOnHill: endOfRound ? 0 : stopwatchViewModel.elapsedPlayerTime,
             isRoundEndingTeam: endOfRound
         ))
@@ -460,7 +460,7 @@ struct PlayerTimers: View {
         // Create an alert controller
        let alertController = UIAlertController(title: "Select Champions", message: "Are you sure you want to choose these two players as champions?", preferredStyle: .alert)
        
-       // Add cancel action
+       // Cancel Action is to reselect the actual champions.
         let cancelAction = UIAlertAction(title: "Cancel", style: .default) { _ in
             returnChampsBackToPlayerList()
             resetAllActivePlayers()
@@ -469,7 +469,6 @@ struct PlayerTimers: View {
        
        // Add confirm action
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
-           // Handle confirmation action (e.g., perform some action when confirmed)
            addDoublesRecord(endOfRound: true)
        }
        alertController.addAction(confirmAction)
