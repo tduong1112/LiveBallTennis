@@ -92,6 +92,7 @@ struct PlayerTimers: View {
     @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
     @State private var roundEndScoreState = false
+    @State private var nextRoundChampionSelectedState = false
 
     @State private var roundCount = 1
     @State private var playerSelectCount = 0;
@@ -326,7 +327,9 @@ struct PlayerTimers: View {
         guard let index = playerRows.firstIndex(where: { $0.id == playerItem.id }) else {
             return
         }
-        
+        if nextRoundChampionSelectedState {
+            return
+        }
         // View for when the Round Timer reaches max or Round End is pressed Pre-emptively.
         // Used to determine which players are the champions
         if roundEndScoreState {
@@ -398,6 +401,10 @@ struct PlayerTimers: View {
 
     
     private func addDoublesRecord(endOfRound: Bool){
+        if championsSelected.count != DOUBLES_PAIR_COUNT {
+            return
+        }
+
         doublesRecordList.append(DoublesRecord(
             player1Name: championsSelected[0].playerName,
             player2Name: championsSelected[1].playerName,
@@ -470,12 +477,15 @@ struct PlayerTimers: View {
        // Add confirm action
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
+           resetAllActivePlayers()
+
        }
        alertController.addAction(confirmAction)
        
         if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
+        nextRoundChampionSelectedState = true
     }
 
     
@@ -485,6 +495,7 @@ struct PlayerTimers: View {
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
         roundEndScoreState = false
+        nextRoundChampionSelectedState = false
 
     }
 
