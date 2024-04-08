@@ -8,7 +8,7 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_PREVIEW_TIME = 10
+let ROUND_DEFAULT_PREVIEW_TIME = 1
 let SECONDS_PER_MINUTE = 60
 
 class StopwatchViewModel: ObservableObject {
@@ -135,7 +135,7 @@ struct PlayerTimers: View {
                         .font(.title3)
                     
                     
-                    Text("\(String(format: "%dm %ds", (stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime)/60, (stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime) % 60))")
+                    Text("\(String(format: "%dm %ds", (stopwatchViewModel.elapsedRoundTime)/60, (stopwatchViewModel.elapsedRoundTime) % 60))")
                         .font(.title3)
                     
                 }
@@ -274,27 +274,22 @@ struct PlayerTimers: View {
         guard let index = playerRows.firstIndex(where: { $0.id == playerItem.id }) else {
             return
         }
-        
-        if !playerRows[index].activePlayer && !stopwatchViewModel.isRunning {
+        if playerSelectCount < DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
         }
-
-        if !playerRows[index].activePlayer && stopwatchViewModel.isRunning {
-            handleTimerStopped(for: index)
-        }
-        if playerSelectCount >= 2 && !stopwatchViewModel.isRunning {
+        
+        if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()
+        } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
+            stopwatchViewModel.stop()
+            addDoublesRecord(endOfRound: false)
+            stopwatchViewModel.reset()
+            resetAllActivePlayers()
+            // Adding this toggles the player card immediately after the timer stops. Comment if it just clears the timer
+            playerRows[index].activePlayer.toggle()
+            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
         }
-    }
-
-    private func handleTimerStopped(for index: Int) {
-        stopwatchViewModel.stop()
-        addDoublesRecord(endOfRound: false)
-        stopwatchViewModel.reset()
-        resetAllActivePlayers()
-        playerRows[index].activePlayer.toggle()
-        playerSelectCount += playerRows[index].activePlayer ? 1 : -1
     }
     
     // Toggling Logic for the color. Selects which color based on that PlayerItem's active Status
