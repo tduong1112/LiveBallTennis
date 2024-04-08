@@ -9,7 +9,7 @@ import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
 let ROUND_DEFAULT_PREVIEW_TIME = 15
-let SECONDS_PER_MINUTE = 60
+let SECONDS_PER_MINUTE = 1
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
@@ -342,7 +342,6 @@ struct PlayerTimers: View {
             removeActivePlayers()
         } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
             stopwatchViewModel.stop()
-            returnChampsBackToPlayerList()
             addDoublesRecord(endOfRound: false)
             stopwatchViewModel.reset()
             resetAllActivePlayers()
@@ -393,22 +392,16 @@ struct PlayerTimers: View {
 
     
     private func addDoublesRecord(endOfRound: Bool){
-        var activePlayers : [String] = []
-        
-        for index in playerRows.indices {
-            if playerRows[index].activePlayer{
-                activePlayers.append(playerRows[index].playerName)
-            }
-        }
-        
         doublesRecordList.append(DoublesRecord(
-            player1Name: activePlayers[0],
-            player2Name: activePlayers[1],
+            player1Name: champsSelected[0].playerName,
+            player2Name: champsSelected[1].playerName,
             timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime,
             isRoundEndingTeam: endOfRound
         ))
         
         doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
+        returnChampsBackToPlayerList()
+
     }
     
     private func resetAllActivePlayers() {
