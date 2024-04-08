@@ -38,7 +38,7 @@ class StopwatchViewModel: ObservableObject {
         isRunning = false
     }
     
-    func reset() {
+    func resetPlayer() {
         timer?.invalidate()
         timer = nil
         elapsedPlayerTime = 0
@@ -46,6 +46,7 @@ class StopwatchViewModel: ObservableObject {
     }
     
     func resetRound() {
+        elapsedPlayerTime = 0
         elapsedRoundTime = 0
     }
 
@@ -172,7 +173,7 @@ struct PlayerTimers: View {
                      }
                      
                      Button(action: {
-                     stopwatchViewModel.reset()
+                     stopwatchViewModel.resetPlayer()
                      }) {
                      Text("Reset")
                      .padding(3)
@@ -338,19 +339,20 @@ struct PlayerTimers: View {
             alertConfirmationChampions()
             return
         }
-
+        //Standard Toggling of PlayerTimers when the timer hasn't started
         if playerSelectCount < DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
         }
         
+        // If the second player of the doubles pair is selected, start the timer and put the champ at the top of the screen and remove the activePlayers from the list view
         if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()
             addChampButtonView()
         } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
             stopwatchViewModel.stop()
             addDoublesRecord(endOfRound: false)
-            stopwatchViewModel.reset()
+            stopwatchViewModel.resetPlayer()
             resetAllActivePlayers()
             // Adding this toggles the player card immediately after the timer stops. Comment if it just clears the timer
             playerRows[index].activePlayer.toggle()
@@ -432,7 +434,6 @@ struct PlayerTimers: View {
     private func endRoundCleanUp() {
         addDoublesRecord(endOfRound : false)
 
-        roundScoresList.append(doublesRecordList)
         stopwatchViewModel.stop()
         resetAllActivePlayers()
         alertSelectChamps()
@@ -478,6 +479,8 @@ struct PlayerTimers: View {
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
            resetAllActivePlayers()
+           nextRoundChampionSelectedState = true
+
 
        }
        alertController.addAction(confirmAction)
@@ -485,12 +488,12 @@ struct PlayerTimers: View {
         if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
-        nextRoundChampionSelectedState = true
     }
 
     
     private func nextRound() {
         stopwatchViewModel.stop()
+        roundScoresList.append(doublesRecordList)
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
