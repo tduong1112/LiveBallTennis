@@ -88,21 +88,22 @@ struct PlayerTimers: View {
     
     @StateObject var stopwatchViewModel : StopwatchViewModel
     @State private var playerRows: [PlayerItem]
-
+    
     @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
     @State private var roundCount = 1
     @State private var roundScoresList: [[DoublesRecord]] = []
     @State private var playerSelectCount = 0;
+    @State private var endRoundChampsSelected = false
     @State private var doublesRecordList : [DoublesRecord] = [
-         //Debug Double Records for formatting. Uncomment to use.
+        //Debug Double Records for formatting. Uncomment to use.
         /*
-
-        DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-        DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
-        DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
-        DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
-        */
+         
+         DoublesRecord(player1Name: "fea 1", player2Name: "Playberabreaevwar 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+         DoublesRecord(player1Name: "be 1", player2Name: "Pbfdlar 2", timeSpentOnHill: 4, isRoundEndingTeam: false),
+         DoublesRecord(player1Name: "Player 1", player2Name: "Placyer 2", timeSpentOnHill: 2, isRoundEndingTeam: false),
+         DoublesRecord(player1Name: "Playebbzr 1", player2Name: "Plabdayer 2", timeSpentOnHill: 1, isRoundEndingTeam: true)
+         */
     ]
     let columns = [
         GridItem(.fixed(100)),
@@ -110,34 +111,34 @@ struct PlayerTimers: View {
         GridItem(.fixed(100))
     ]
     
-
+    
     init(playerNames: Binding<[String]>,
          timePerRound: Binding<Int>)
     {
         _playerNames = playerNames
         _timePerRound = timePerRound
         _stopwatchViewModel = StateObject(wrappedValue: StopwatchViewModel(timePerRound: timePerRound.wrappedValue))
-
+        
         playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }
-
-
+        
+        
     }
-       
+    
     var body: some View {
         // Timer Section
         // Optional Debug Text for Options Listed
-//        Text("Selected option: \(selectedTennisClass) \(numPlayers)")
-//            .padding()
+        //        Text("Selected option: \(selectedTennisClass) \(numPlayers)")
+        //            .padding()
         VStack{
             VStack{
                 HStack {
                     Text("Time Left in Round: ")
-                        .font(.title3)
+                        .font(.title)
                     
-                    
-                    Text("\(String(format: "%dm %ds", (stopwatchViewModel.elapsedRoundTime)/60, (stopwatchViewModel.elapsedRoundTime) % 60))")
-                        .font(.title3)
-                    
+                    Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
+                        .font(.title)
+                        .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
                     if newValue >= stopwatchViewModel.timePerRound {
@@ -147,7 +148,7 @@ struct PlayerTimers: View {
                 
                 HStack {
                     Text("Current Live Ball Champ: \(String(format: "%dm %ds", stopwatchViewModel.elapsedPlayerTime/60, stopwatchViewModel.elapsedPlayerTime % 60))")
-                        .font(.title3)
+                        .font(.caption)
                     /* //Optional Debug Stopwatch Buttons
                      HStack {
                      Button(action: {
@@ -172,7 +173,7 @@ struct PlayerTimers: View {
                     
                 }
             }
-        
+            
             // Player Card Section
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 10) {
@@ -194,8 +195,8 @@ struct PlayerTimers: View {
                 }
                 .padding()
             }
-        
-        
+            
+            
             // Doubles History Section
             
             VStack() {
@@ -305,10 +306,8 @@ struct PlayerTimers: View {
             return "crown.fill"
         }
         return playerRows[index].activePlayer ? "crown.fill" : "crown"
-
+        
     }
-
-
     
     private func addDoublesRecord(endOfRound: Bool){
         var activePlayers : [String] = []
@@ -335,26 +334,29 @@ struct PlayerTimers: View {
         }
         playerSelectCount = 0
     }
-
+    
     private func resetDoublesRecord() {
         doublesRecordList = []
     }
     
     private func roundOverCleanUp() {
         stopwatchViewModel.stop()
+        addDoublesRecord(endOfRound : false)
         resetAllActivePlayers()
         stopwatchViewModel.reset()
         print("Clean Up!")
-
-    }
-
-    private func endRound() {
-        roundScoresList.append(doublesRecordList)
-        resetDoublesRecord()
-        stopwatchViewModel.resetRound()
-        print(roundScoresList)
         
     }
+    
+    private func endRound() {
+        stopwatchViewModel.stop()
+        roundScoresList.append(doublesRecordList)
+        resetDoublesRecord()
+        resetAllActivePlayers()
+        stopwatchViewModel.resetRound()
+        endRoundChampsSelected = false
+    }
+
 }
 
 #Preview {
