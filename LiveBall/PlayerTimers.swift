@@ -91,7 +91,7 @@ struct PlayerTimers: View {
     
     @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
-    @State private var endRoundChampsSelected = false
+    @State private var roundEndScoreState = false
 
     @State private var roundCount = 1
     @State private var playerSelectCount = 0;
@@ -135,7 +135,7 @@ struct PlayerTimers: View {
         VStack{
             VStack{
                 HStack {
-                    if endRoundChampsSelected {
+                    if roundEndScoreState {
                         Text("Round Ended")
                             .font(.title)
                     } else {
@@ -150,7 +150,7 @@ struct PlayerTimers: View {
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
                     if newValue >= stopwatchViewModel.timePerRound {
-                        roundOverCleanUp()
+                        endRoundCleanUp()
                     }
                 }
                 
@@ -278,7 +278,7 @@ struct PlayerTimers: View {
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
                     if !doublesRecordList.isEmpty {
-                        if endRoundChampsSelected {
+                        if roundEndScoreState {
                             Button(action: {
                                 // Change color logic here
                                 self.nextRound()
@@ -291,7 +291,7 @@ struct PlayerTimers: View {
                         } else {
                             Button(action: {
                                 // Change color logic here
-                                self.endRound()
+                                self.endRoundCleanUp()
                                 
                             }) {
                                 Text("End Round")
@@ -327,7 +327,12 @@ struct PlayerTimers: View {
             return
         }
         
-        if endRoundChampsSelected {
+        // View for when the Round Timer reaches max or Round End is pressed Pre-emptively.
+        // Used to determine which players are the champions
+        if roundEndScoreState {
+            playerRows[index].activePlayer.toggle()
+            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
+            alertConfirmationChampions()
             return
         }
 
@@ -339,7 +344,6 @@ struct PlayerTimers: View {
         if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             stopwatchViewModel.start()
             addChampButtonView()
-            removeActivePlayers()
         } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
             stopwatchViewModel.stop()
             addDoublesRecord(endOfRound: false)
@@ -374,6 +378,8 @@ struct PlayerTimers: View {
                 champsSelected.append(playerRows[index])
             }
         }
+        removeActivePlayers()
+
     }
 
     private func removeActivePlayers() {
@@ -395,7 +401,7 @@ struct PlayerTimers: View {
         doublesRecordList.append(DoublesRecord(
             player1Name: champsSelected[0].playerName,
             player2Name: champsSelected[1].playerName,
-            timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime,
+            timeSpentOnHill: endOfRound ? 0 : stopwatchViewModel.elapsedPlayerTime,
             isRoundEndingTeam: endOfRound
         ))
         
@@ -415,65 +421,63 @@ struct PlayerTimers: View {
         doublesRecordList = []
     }
     
-    private func roundOverCleanUp() {
-        stopwatchViewModel.stop()
+
+    private func endRoundCleanUp() {
         addDoublesRecord(endOfRound : false)
-        resetAllActivePlayers()
-        stopwatchViewModel.reset()
-        
-    }
-    
-    private func endRound() {
+
         roundScoresList.append(doublesRecordList)
         stopwatchViewModel.stop()
         resetAllActivePlayers()
-        selectChamps()
+        alertSelectChamps()
 
     }
     
-    private func selectChamps() {
-        let alertController = UIAlertController(title: "Select Champions", message: "Choose two champions", preferredStyle: .alert)
-        
-        // Replace these placeholders with your actual list of champions
-        let champions = ["Champion 1", "Champion 2", "Champion 3", "Champion 4"]
-        
-        // Keep track of selected champions
-        var selectedChampions = Set<String>()
-        
-        // Handler for when a champion is selected
-        let championSelectionHandler: (UIAlertAction) -> Void = { action in
-            // Here, you can handle the selected champions
-            print("Selected Champions: \(selectedChampions)")
+    private func alertSelectChamps() {
+        // Create an alert controller
+        let alertController = UIAlertController(title: "Round Ended", message: "Select The two champions that ended the round", preferredStyle: .alert)
+
+        // create an OK action
+        let OKAction = UIAlertAction(title: "OK", style: .default) { (action) in
+            // handle response here.
         }
+        // add the OK action to the alert controller
+        alertController.addAction(OKAction)
+    
         
-        // Add checkboxes for each champion in the list
-        for champion in champions {
-            let action = UIAlertAction(title: champion, style: .default) { _ in
-                // Toggle selection
-                if selectedChampions.contains(champion) {
-                    selectedChampions.remove(champion)
-                } else {
-                    selectedChampions.insert(champion)
-                }
-            }
-            alertController.addAction(action)
-        }
-        
-        // Add OK action
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: championSelectionHandler)
-        alertController.addAction(okAction)
-        
-        // Add cancel action
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        // Present the alert controller
         if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
-        endRoundChampsSelected = true
+ 
+        // Update roundEndScoreState
+        roundEndScoreState = true
     }
 
+    private func alertConfirmationChampions() {
+        if playerSelectCount < DOUBLES_PAIR_COUNT {
+            return
+        }
+        addChampButtonView()
+        // Create an alert controller
+       let alertController = UIAlertController(title: "Select Champions", message: "Are you sure you want to choose these two players as champions?", preferredStyle: .alert)
+       
+       // Add cancel action
+        let cancelAction = UIAlertAction(title: "Cancel", style: .default) { _ in
+            returnChampsBackToPlayerList()
+            resetAllActivePlayers()
+        }
+       alertController.addAction(cancelAction)
+       
+       // Add confirm action
+       let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
+           // Handle confirmation action (e.g., perform some action when confirmed)
+           addDoublesRecord(endOfRound: true)
+       }
+       alertController.addAction(confirmAction)
+       
+        if let topViewController = UIApplication.shared.windows.first?.rootViewController {
+            topViewController.present(alertController, animated: true, completion: nil)
+        }
+    }
 
     
     private func nextRound() {
@@ -481,7 +485,7 @@ struct PlayerTimers: View {
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
-        endRoundChampsSelected = false
+        roundEndScoreState = false
 
     }
 
