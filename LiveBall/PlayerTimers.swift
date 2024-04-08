@@ -465,8 +465,10 @@ struct PlayerTimers: View {
             return
         }
         addChampButtonView()
+        let p1 = championsSelected[0].playerName
+        let p2 = championsSelected[1].playerName
         // Create an alert controller
-       let alertController = UIAlertController(title: "Select Champions", message: "Are you sure you want to choose these two players as champions?", preferredStyle: .alert)
+        let alertController = UIAlertController(title: "Select Champions", message: "Are you sure you want to choose \n\n \(p1)  +  \(p2) \n\n as champions?", preferredStyle: .alert)
        
        // Cancel Action is to reselect the actual champions.
         let cancelAction = UIAlertAction(title: "Cancel", style: .default) { _ in
