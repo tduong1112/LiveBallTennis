@@ -8,7 +8,7 @@
 import SwiftUI
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_PREVIEW_TIME = 15
+let ROUND_DEFAULT_PREVIEW_TIME = 1
 let SECONDS_PER_MINUTE = 60
 
 class StopwatchViewModel: ObservableObject {
@@ -151,8 +151,9 @@ struct PlayerTimers: View {
 
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
-                    if newValue >= stopwatchViewModel.timePerRound {
-                        endRoundCleanUp()
+                    if newValue >= stopwatchViewModel.timePerRound && !isTimerExpired {
+                        print("Timer Alert Here!")
+                        isTimerExpired = true
                     }
                 }
                 
@@ -337,6 +338,7 @@ struct PlayerTimers: View {
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
             alertConfirmationChampions()
+
             return
         }
         //Standard Toggling of PlayerTimers when the timer hasn't started
@@ -347,6 +349,8 @@ struct PlayerTimers: View {
         
         // If the second player of the doubles pair is selected, start the timer and put the champ at the top of the screen and remove the activePlayers from the list view
         if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
+            returnChampsBackToPlayerList()
+
             stopwatchViewModel.start()
             addChampButtonView()
         } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
@@ -396,6 +400,12 @@ struct PlayerTimers: View {
     }
     
     private func returnChampsBackToPlayerList() {
+        if championsSelected.count < DOUBLES_PAIR_COUNT {
+            return
+        }
+        championsSelected[0].activePlayer = false
+        championsSelected[1].activePlayer = false
+
         playerRows.append(championsSelected[0])
         playerRows.append(championsSelected[1])
         championsSelected = []
@@ -415,7 +425,6 @@ struct PlayerTimers: View {
         ))
         
         doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
-        returnChampsBackToPlayerList()
 
     }
     
@@ -480,10 +489,9 @@ struct PlayerTimers: View {
        // Add confirm action
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
+           roundScoresList.append(doublesRecordList)
            resetAllActivePlayers()
            nextRoundChampionSelectedState = true
-
-
        }
        alertController.addAction(confirmAction)
        
@@ -495,7 +503,6 @@ struct PlayerTimers: View {
     
     private func nextRound() {
         stopwatchViewModel.stop()
-        roundScoresList.append(doublesRecordList)
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
