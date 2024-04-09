@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import AVFoundation
 
 let DOUBLES_PAIR_COUNT = 2
 let ROUND_DEFAULT_PREVIEW_TIME = 1
-let SECONDS_PER_MINUTE = 60
+let SECONDS_PER_MINUTE = 15
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
@@ -88,10 +89,13 @@ struct PlayerTimers: View {
     @Binding var timePerRound: Int
     
     @StateObject var stopwatchViewModel : StopwatchViewModel
+    
+
     @State private var playerRows: [PlayerItem]
     
     @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
+    @State private var roundEndScoreState = false
 
     @State private var roundCount = 1
     @State private var playerSelectCount = 0;
@@ -113,6 +117,8 @@ struct PlayerTimers: View {
         GridItem(.fixed(100)),
         GridItem(.fixed(100))
     ]
+    var audioPlayer: AVAudioPlayer?
+
     
     
     init(playerNames: Binding<[String]>,
@@ -124,7 +130,6 @@ struct PlayerTimers: View {
         
         playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }
         
-        
     }
     
     var body: some View {
@@ -135,19 +140,22 @@ struct PlayerTimers: View {
         VStack{
             VStack{
                 HStack {
-                    Text("Time Left in Round: ")
-                        .font(.title)
-                    
-                    Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
-                        .font(.title)
-                        .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
-                
-
+                    if roundEndScoreState {
+                        Text("Round Ended")
+                            .font(.title)
+                    } else {
+                        Text("Time Left in Round: ")
+                            .font(.title)
+                        
+                        Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
+                            .font(.title)
+                            .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+                    }
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
                     if newValue >= stopwatchViewModel.timePerRound && !isTimerExpired {
-                        print("Timer Alert Here!")
                         isTimerExpired = true
+                        print("Time Expired")
                     }
                 }
                 
@@ -275,15 +283,25 @@ struct PlayerTimers: View {
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
                     if !doublesRecordList.isEmpty {
-
-                        Button(action: {
-                            // Change color logic here
-                            self.endRoundCleanUp()
-                            
-                        }) {
-                            Text("End Round")
+                        if roundEndScoreState {
+                            Button(action: {
+                                // Change color logic here
+                                self.nextRound()
+                                
+                            }) {
+                                Text("Next Round")
+                            }
+                            .buttonStyle(.borderedProminent)
+                        } else {
+                            Button(action: {
+                                // Change color logic here
+                                self.endRoundCleanUp()
+                                
+                            }) {
+                                Text("End Round")
+                            }
+                            .buttonStyle(.borderedProminent)
                         }
-                        .buttonStyle(.borderedProminent)
                     }
                         
                     
@@ -314,8 +332,9 @@ struct PlayerTimers: View {
             return
         }
 
-        // View for when the Round Timer reaches max or Round End is pressed Pre-emptively.
-        // Used to determine which players are the champions
+        if roundEndScoreState {
+            return
+        }
 
         //Standard Toggling of PlayerTimers when the timer hasn't started
         if playerSelectCount < DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
@@ -451,8 +470,7 @@ struct PlayerTimers: View {
        
        // Cancel Action is to reselect the actual champions.
         let cancelAction = UIAlertAction(title: "Cancel", style: .default) { _ in
-            returnChampsBackToPlayerList()
-            resetAllActivePlayers()
+            stopwatchViewModel.start()
         }
        alertController.addAction(cancelAction)
        
@@ -462,7 +480,7 @@ struct PlayerTimers: View {
            roundScoresList.append(doublesRecordList)
            returnChampsBackToPlayerList()
            resetAllActivePlayers()
-           nextRound()
+           roundEndScoreState = true
        }
        alertController.addAction(confirmAction)
        
@@ -477,8 +495,10 @@ struct PlayerTimers: View {
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
-
+        roundEndScoreState = false
     }
+
+    
 
 }
 
