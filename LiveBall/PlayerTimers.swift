@@ -436,7 +436,6 @@ struct PlayerTimers: View {
     
 
     private func endRoundCleanUp() {
-
         stopwatchViewModel.stop()
         alertConfirmationChampions()
     }
@@ -452,17 +451,17 @@ struct PlayerTimers: View {
         // add the OK action to the alert controller
         alertController.addAction(OKAction)
     
-        
         if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
      }
 
     private func alertConfirmationChampions() {
-        if playerSelectCount < DOUBLES_PAIR_COUNT {
+
+        if championsSelected.count < DOUBLES_PAIR_COUNT {
             return
         }
-        addChampButtonView()
+//        addChampButtonView()
         let p1 = championsSelected[0].playerName
         let p2 = championsSelected[1].playerName
         // Create an alert controller
@@ -470,6 +469,7 @@ struct PlayerTimers: View {
        
        // Cancel Action is to reselect the actual champions.
         let cancelAction = UIAlertAction(title: "Cancel", style: .default) { _ in
+            resetAllActivePlayers()
             stopwatchViewModel.start()
         }
        alertController.addAction(cancelAction)
