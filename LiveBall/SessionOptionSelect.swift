@@ -99,7 +99,7 @@ struct SessionOptionSelect: View {
             .padding()
 
         }
-        NavigationLink(destination: PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound)) {
+        NavigationLink(destination: PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound, selectedTennisClass: $selectedTennisClass)) {
             Text("Create Session")
         }
         .buttonStyle(.borderedProminent)

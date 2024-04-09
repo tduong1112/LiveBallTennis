@@ -1,0 +1,157 @@
+{
+  "selectedTennisClass": "FortuneTennis 3.5",
+  "id": "DCB790A9-1AC2-44DC-AF57-8E095690E4AC",
+  "timestamp": "2024-04-09T20:05:47Z",
+  "submitPlayerScores": [
+    [
+      {
+        "player1Name": "1 Player 1",
+        "timeSpentOnHill": 5,
+        "isRoundEndingTeam": false,
+        "player2Name": "1 Player 2",
+        "round": 1
+      },
+      {
+        "isRoundEndingTeam": false,
+        "timeSpentOnHill": 3,
+        "player1Name": "1 Player 3",
+        "player2Name": "1 Player 4",
+        "round": 1
+      },
+      {
+        "timeSpentOnHill": 150,
+        "isRoundEndingTeam": true,
+        "player2Name": "1 Player 6",
+        "round": 1,
+        "player1Name": "1 Player 5"
+      },
+      {
+        "player2Name": "1 Player 8",
+        "player1Name": "1 Player 7",
+        "isRoundEndingTeam": false,
+        "round": 1,
+        "timeSpentOnHill": 7
+      }
+    ],
+    [
+      {
+        "player1Name": "2 Player 1",
+        "player2Name": "2 Player 2",
+        "timeSpentOnHill": 5,
+        "isRoundEndingTeam": false,
+        "round": 2
+      },
+      {
+        "isRoundEndingTeam": false,
+        "player1Name": "2 Player 3",
+        "player2Name": "2 Player 4",
+        "timeSpentOnHill": 3,
+        "round": 2
+      },
+      {
+        "isRoundEndingTeam": true,
+        "round": 2,
+        "player2Name": "2 Player 6",
+        "player1Name": "2 Player 5",
+        "timeSpentOnHill": 130
+      },
+      {
+        "player1Name": "2 Player 7",
+        "player2Name": "2 Player 8",
+        "timeSpentOnHill": 7,
+        "isRoundEndingTeam": false,
+        "round": 2
+      }
+    ],
+    [
+      {
+        "isRoundEndingTeam": false,
+        "player1Name": "3 Player 1",
+        "timeSpentOnHill": 5,
+        "round": 3,
+        "player2Name": "3 Player 2"
+      },
+      {
+        "round": 3,
+        "player2Name": "3 Player 4",
+        "timeSpentOnHill": 3,
+        "player1Name": "3 Player 3",
+        "isRoundEndingTeam": false
+      },
+      {
+        "isRoundEndingTeam": true,
+        "timeSpentOnHill": 120,
+        "player1Name": "3 Player 5",
+        "round": 3,
+        "player2Name": "3 Player 6"
+      },
+      {
+        "isRoundEndingTeam": false,
+        "round": 3,
+        "player2Name": "3 Player 8",
+        "player1Name": "3 Player 7",
+        "timeSpentOnHill": 7
+      }
+    ],
+    [
+      {
+        "isRoundEndingTeam": false,
+        "timeSpentOnHill": 5,
+        "round": 4,
+        "player2Name": "4 Player 2",
+        "player1Name": "4 Player 1"
+      },
+      {
+        "timeSpentOnHill": 3,
+        "player1Name": "4 Player 3",
+        "player2Name": "4 Player 4",
+        "round": 4,
+        "isRoundEndingTeam": false
+      },
+      {
+        "player1Name": "4 Player 5",
+        "round": 4,
+        "player2Name": "4 Player 6",
+        "timeSpentOnHill": 180,
+        "isRoundEndingTeam": true
+      },
+      {
+        "timeSpentOnHill": 7,
+        "player1Name": "4 Player 7",
+        "player2Name": "4 Player 8",
+        "round": 4,
+        "isRoundEndingTeam": false
+      }
+    ],
+    [
+      {
+        "player2Name": "5 Player 2",
+        "timeSpentOnHill": 5,
+        "isRoundEndingTeam": false,
+        "player1Name": "5 Player 1",
+        "round": 5
+      },
+      {
+        "isRoundEndingTeam": false,
+        "round": 5,
+        "player1Name": "5 Player 3",
+        "player2Name": "5 Player 4",
+        "timeSpentOnHill": 3
+      },
+      {
+        "player1Name": "5 Player 5",
+        "isRoundEndingTeam": true,
+        "player2Name": "5 Player 6",
+        "timeSpentOnHill": 150,
+        "round": 5
+      },
+      {
+        "player2Name": "5 Player 8",
+        "isRoundEndingTeam": false,
+        "round": 5,
+        "timeSpentOnHill": 7,
+        "player1Name": "5 Player 7"
+      }
+    ]
+  ]
+}

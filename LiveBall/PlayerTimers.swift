@@ -65,13 +65,13 @@ struct PlayerItem: Identifiable {
     
 }
 
-struct DoublesRecord: Identifiable {
-    var id = UUID()
+struct DoublesRecord: Codable {
     var player1Name: String
     var player2Name: String
     var timeSpentOnHill: Int
     var isRoundEndingTeam: Bool
-    
+    var round: Int
+
     init(player1Name: String, 
          player2Name: String ,
          timeSpentOnHill: Int,
@@ -80,6 +80,7 @@ struct DoublesRecord: Identifiable {
         self.player2Name = player2Name
         self.timeSpentOnHill = timeSpentOnHill
         self.isRoundEndingTeam = isRoundEndingTeam
+        self.round = 0
         
     }
 }
@@ -87,6 +88,7 @@ struct DoublesRecord: Identifiable {
 struct PlayerTimers: View {
     @Binding var playerNames : [String]
     @Binding var timePerRound: Int
+    @Binding var selectedTennisClass: String
     
     @StateObject var stopwatchViewModel : StopwatchViewModel
     
@@ -122,10 +124,12 @@ struct PlayerTimers: View {
     
     
     init(playerNames: Binding<[String]>,
-         timePerRound: Binding<Int>)
+         timePerRound: Binding<Int>,
+         selectedTennisClass: Binding<String>)
     {
         _playerNames = playerNames
         _timePerRound = timePerRound
+        _selectedTennisClass = selectedTennisClass
         _stopwatchViewModel = StateObject(wrappedValue: StopwatchViewModel(timePerRound: timePerRound.wrappedValue))
         
         playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }
@@ -306,8 +310,9 @@ struct PlayerTimers: View {
                         
                     
                     if roundScoresList.count >= 1 {
-                        NavigationLink(destination: SubmitPlayerScores(roundScoresList: $roundScoresList)) {
-                            Text("End Session")
+                        NavigationLink(destination: SubmitPlayerScores(roundScoresList: $roundScoresList,
+                                                                       selectedTennisClass: $selectedTennisClass)) {
+                            Text("Session View")
                         }
                         .buttonStyle(.borderedProminent)
                     } else {
@@ -315,7 +320,7 @@ struct PlayerTimers: View {
                             // Display error message here
                             self.showingErrorAlert = true
                         }) {
-                            Text("End Session")
+                            Text("Session View")
                         }
                         .buttonStyle(.borderedProminent)
                         .alert(isPresented: $showingErrorAlert) {
@@ -507,7 +512,8 @@ struct PlayerTimers: View {
         playerNames: .constant(["asdf", "bweaewaveaveaw", "graphic", 
                                 "manny", "who that", "feafe",
                                 "manny", "who that", "feafe"]),
-        timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME)
+        timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
+        selectedTennisClass: .constant("FortuneTennis 3.5")
     )
 }
 
