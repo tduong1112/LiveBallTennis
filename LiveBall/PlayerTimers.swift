@@ -92,8 +92,6 @@ struct PlayerTimers: View {
     
     @State private var showingErrorAlert = false
     @State private var isTimerExpired = false
-    @State private var roundEndScoreState = false
-    @State private var nextRoundChampionSelectedState = false
 
     @State private var roundCount = 1
     @State private var playerSelectCount = 0;
@@ -137,17 +135,13 @@ struct PlayerTimers: View {
         VStack{
             VStack{
                 HStack {
-                    if roundEndScoreState {
-                        Text("Round Ended")
-                            .font(.title)
-                    } else {
-                        Text("Time Left in Round: ")
-                            .font(.title)
-                        
-                        Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
-                            .font(.title)
-                            .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
-                    }
+                    Text("Time Left in Round: ")
+                        .font(.title)
+                    
+                    Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
+                        .font(.title)
+                        .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+                
 
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
@@ -281,28 +275,18 @@ struct PlayerTimers: View {
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
                     if !doublesRecordList.isEmpty {
-                        if roundEndScoreState {
-                            Button(action: {
-                                // Change color logic here
-                                self.nextRound()
-                                
-                            }) {
-                                Text("Next Round")
-                            }
-                            .buttonStyle(.borderedProminent)
 
-                        } else {
-                            Button(action: {
-                                // Change color logic here
-                                self.endRoundCleanUp()
-                                
-                            }) {
-                                Text("End Round")
-                            }
-                            .buttonStyle(.borderedProminent)
+                        Button(action: {
+                            // Change color logic here
+                            self.endRoundCleanUp()
+                            
+                        }) {
+                            Text("End Round")
                         }
-                        
+                        .buttonStyle(.borderedProminent)
                     }
+                        
+                    
                     if roundScoresList.count >= 1 {
                         NavigationLink(destination: SubmitPlayerScores(roundScoresList: $roundScoresList)) {
                             Text("End Session")
@@ -329,18 +313,10 @@ struct PlayerTimers: View {
         guard let index = playerRows.firstIndex(where: { $0.id == playerItem.id }) else {
             return
         }
-        if nextRoundChampionSelectedState {
-            return
-        }
+
         // View for when the Round Timer reaches max or Round End is pressed Pre-emptively.
         // Used to determine which players are the champions
-        if roundEndScoreState {
-            playerRows[index].activePlayer.toggle()
-            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
-            alertConfirmationChampions()
 
-            return
-        }
         //Standard Toggling of PlayerTimers when the timer hasn't started
         if playerSelectCount < DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
             playerRows[index].activePlayer.toggle()
@@ -441,12 +417,9 @@ struct PlayerTimers: View {
     
 
     private func endRoundCleanUp() {
-        addDoublesRecord(endOfRound : false)
 
         stopwatchViewModel.stop()
-        resetAllActivePlayers()
-        alertSelectChamps()
-
+        alertConfirmationChampions()
     }
     
     private func alertSelectChamps() {
@@ -464,10 +437,7 @@ struct PlayerTimers: View {
         if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
- 
-        // Update roundEndScoreState
-        roundEndScoreState = true
-    }
+     }
 
     private func alertConfirmationChampions() {
         if playerSelectCount < DOUBLES_PAIR_COUNT {
@@ -490,8 +460,9 @@ struct PlayerTimers: View {
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
            roundScoresList.append(doublesRecordList)
+           returnChampsBackToPlayerList()
            resetAllActivePlayers()
-           nextRoundChampionSelectedState = true
+           nextRound()
        }
        alertController.addAction(confirmAction)
        
@@ -506,8 +477,6 @@ struct PlayerTimers: View {
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
-        roundEndScoreState = false
-        nextRoundChampionSelectedState = false
 
     }
 
