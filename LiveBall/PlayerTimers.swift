@@ -85,6 +85,22 @@ struct DoublesRecord: Codable {
     }
 }
 
+class SoundManager {
+    static let instance = SoundManager()
+    var player: AVAudioPlayer?
+    
+    func playSound() {
+        guard let url = Bundle.main.url(forResource: "iphone-alarm", withExtension: ".mp3") else {return}
+        
+        do {
+            player = try AVAudioPlayer(contentsOf: url)
+            player?.play()
+        } catch {
+            print("Error loading sound file: \(error.localizedDescription)")
+        }
+    }
+}
+
 struct PlayerTimers: View {
     @Binding var playerNames : [String]
     @Binding var timePerRound: Int
@@ -159,7 +175,7 @@ struct PlayerTimers: View {
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
                     if newValue >= stopwatchViewModel.timePerRound && !isTimerExpired {
                         isTimerExpired = true
-                        print("Time Expired")
+                        SoundManager.instance.playSound()
                     }
                 }
                 
