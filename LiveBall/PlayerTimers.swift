@@ -302,27 +302,26 @@ struct PlayerTimers: View {
                 }
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
-                    if !doublesRecordList.isEmpty {
-                        if roundEndScoreState {
-                            Button(action: {
-                                // Change color logic here
-                                self.nextRound()
-                                
-                            }) {
-                                Text("Next Round")
-                            }
-                            .buttonStyle(.borderedProminent)
-                        } else {
-                            Button(action: {
-                                // Change color logic here
-                                self.endRoundCleanUp()
-                                
-                            }) {
-                                Text("End Round")
-                            }
-                            .buttonStyle(.borderedProminent)
+                    if roundEndScoreState {
+                        Button(action: {
+                            // Change color logic here
+                            self.nextRound()
+                            
+                        }) {
+                            Text("Next Round")
                         }
+                        .buttonStyle(.borderedProminent)
+                    } else {
+                        Button(action: {
+                            // Change color logic here
+                            self.endRoundCleanUp()
+                            
+                        }) {
+                            Text("End Round")
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
+                    
                         
                     
                     if roundScoresList.count >= 1 {
@@ -436,7 +435,7 @@ struct PlayerTimers: View {
         doublesRecordList.append(DoublesRecord(
             player1Name: championsSelected[0].playerName,
             player2Name: championsSelected[1].playerName,
-            timeSpentOnHill: endOfRound ? 0 : stopwatchViewModel.elapsedPlayerTime,
+            timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime,
             isRoundEndingTeam: endOfRound
         ))
         
