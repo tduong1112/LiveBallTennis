@@ -104,16 +104,33 @@ struct SubmitPlayerScores: View {
         do {
             // Encode the data to JSON format
             let jsonData = try encoder.encode(scores)
-            
+            let jsonString = String(data: jsonData, encoding: .utf8)
+            postSessionData(jsonData:  jsonData)
             // Convert JSON data to string
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print(jsonString)
-            }
         } catch {
             print("Error encoding data: \(error.localizedDescription)")
         }
+    }
+    
+    private func postSessionData(jsonData : Data) {
+        let parameters = "{\n  \"selectedTennisClass\": \"FortuneTennis 3.5\",\n  \"id\": \"DCB790A9-1AC2-44DC-AF57-8E095690E4AC\",\n  \"timestamp\": \"2024-04-09T20:05:47Z\",\n  \"submitPlayerScores\": [\n    [\n      {\n        \"player1Name\": \"1 Player 1\",\n        \"timeSpentOnHill\": 5,\n        \"isRoundEndingTeam\": false,\n        \"player2Name\": \"1 Player 2\",\n        \"round\": 1\n      },\n      {\n        \"isRoundEndingTeam\": false,\n        \"timeSpentOnHill\": 3,\n        \"player1Name\": \"1 Player 3\",\n        \"player2Name\": \"1 Player 4\",\n        \"round\": 1\n      },\n      {\n        \"timeSpentOnHill\": 150,\n        \"isRoundEndingTeam\": true,\n        \"player2Name\": \"1 Player 6\",\n        \"round\": 1,\n        \"player1Name\": \"1 Player 5\"\n      },\n      {\n        \"player2Name\": \"1 Player 8\",\n        \"player1Name\": \"1 Player 7\",\n        \"isRoundEndingTeam\": false,\n        \"round\": 1,\n        \"timeSpentOnHill\": 7\n      }\n    ],\n    [\n      {\n        \"player1Name\": \"2 Player 1\",\n        \"player2Name\": \"2 Player 2\",\n        \"timeSpentOnHill\": 5,\n        \"isRoundEndingTeam\": false,\n        \"round\": 2\n      },\n      {\n        \"isRoundEndingTeam\": false,\n        \"player1Name\": \"2 Player 3\",\n        \"player2Name\": \"2 Player 4\",\n        \"timeSpentOnHill\": 3,\n        \"round\": 2\n      },\n      {\n        \"isRoundEndingTeam\": true,\n        \"round\": 2,\n        \"player2Name\": \"2 Player 6\",\n        \"player1Name\": \"2 Player 5\",\n        \"timeSpentOnHill\": 130\n      },\n      {\n        \"player1Name\": \"2 Player 7\",\n        \"player2Name\": \"2 Player 8\",\n        \"timeSpentOnHill\": 7,\n        \"isRoundEndingTeam\": false,\n        \"round\": 2\n      }\n    ],\n    [\n      {\n        \"isRoundEndingTeam\": false,\n        \"player1Name\": \"3 Player 1\",\n        \"timeSpentOnHill\": 5,\n        \"round\": 3,\n        \"player2Name\": \"3 Player 2\"\n      },\n      {\n        \"round\": 3,\n        \"player2Name\": \"3 Player 4\",\n        \"timeSpentOnHill\": 3,\n        \"player1Name\": \"3 Player 3\",\n        \"isRoundEndingTeam\": false\n      },\n      {\n        \"isRoundEndingTeam\": true,\n        \"timeSpentOnHill\": 120,\n        \"player1Name\": \"3 Player 5\",\n        \"round\": 3,\n        \"player2Name\": \"3 Player 6\"\n      },\n      {\n        \"isRoundEndingTeam\": false,\n        \"round\": 3,\n        \"player2Name\": \"3 Player 8\",\n        \"player1Name\": \"3 Player 7\",\n        \"timeSpentOnHill\": 7\n      }\n    ],\n    [\n      {\n        \"isRoundEndingTeam\": false,\n        \"timeSpentOnHill\": 5,\n        \"round\": 4,\n        \"player2Name\": \"4 Player 2\",\n        \"player1Name\": \"4 Player 1\"\n      },\n      {\n        \"timeSpentOnHill\": 3,\n        \"player1Name\": \"4 Player 3\",\n        \"player2Name\": \"4 Player 4\",\n        \"round\": 4,\n        \"isRoundEndingTeam\": false\n      },\n      {\n        \"player1Name\": \"4 Player 5\",\n        \"round\": 4,\n        \"player2Name\": \"4 Player 6\",\n        \"timeSpentOnHill\": 180,\n        \"isRoundEndingTeam\": true\n      },\n      {\n        \"timeSpentOnHill\": 7,\n        \"player1Name\": \"4 Player 7\",\n        \"player2Name\": \"4 Player 8\",\n        \"round\": 4,\n        \"isRoundEndingTeam\": false\n      }\n    ],\n    [\n      {\n        \"player2Name\": \"5 Player 2\",\n        \"timeSpentOnHill\": 5,\n        \"isRoundEndingTeam\": false,\n        \"player1Name\": \"5 Player 1\",\n        \"round\": 5\n      },\n      {\n        \"isRoundEndingTeam\": false,\n        \"round\": 5,\n        \"player1Name\": \"5 Player 3\",\n        \"player2Name\": \"5 Player 4\",\n        \"timeSpentOnHill\": 3\n      },\n      {\n        \"player1Name\": \"5 Player 5\",\n        \"isRoundEndingTeam\": true,\n        \"player2Name\": \"5 Player 6\",\n        \"timeSpentOnHill\": 150,\n        \"round\": 5\n      },\n      {\n        \"player2Name\": \"5 Player 8\",\n        \"isRoundEndingTeam\": false,\n        \"round\": 5,\n        \"timeSpentOnHill\": 7,\n        \"player1Name\": \"5 Player 7\"\n      }\n    ]\n  ]\n}\n"
+        let postData = parameters.data(using: .utf8)
 
+        var request = URLRequest(url: URL(string: "https://5rbu4c8mn8.execute-api.us-east-1.amazonaws.com/session")!,timeoutInterval: Double.infinity)
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
+        request.httpMethod = "POST"
+        request.httpBody = postData
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+          guard let data = data else {
+            print(String(describing: error))
+            return
+          }
+          print(String(data: data, encoding: .utf8)!)
+        }
+
+        task.resume()
     }
     
     
