@@ -19,10 +19,31 @@ struct SessionSubmit: View {
     }
     
     var body: some View {
-        Button(action: {
-            submitSession()
-        }) {
-            Text("Submit Session")
+
+        
+        VStack {
+            Text("Submit Session Page")
+                .onAppear {
+                    // Run your function here
+                    print("Next view appeared")
+                    submitSession()
+                }
+            
+            if let result = submissionResult {
+                Text("Submission Result: \(result)")
+            }
+            
+            // Placeholder text when submissionResult is nil
+            if submissionResult == nil {
+                Text("Loading")
+            }
+            
+            Button(action: {
+                submitSession()
+            }) {
+                Text("Resubmit Session")
+            }
+            .buttonStyle(.borderedProminent)
         }
     }
     

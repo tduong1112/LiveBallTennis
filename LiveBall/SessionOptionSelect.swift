@@ -16,6 +16,8 @@ struct SessionOptionSelect: View {
     
     @State private var selectRegularPlayer = ""
     @State private var regularPlayerNames = ["Manny", "Matthew", "Andre", "Vanessa", "Ben"]
+    @State private var sessionClearWarning = false
+
     init(selectedTennisClass: Binding<String>)
     {
         _selectedTennisClass = selectedTennisClass
@@ -103,7 +105,6 @@ struct SessionOptionSelect: View {
             Text("Create Session")
         }
         .buttonStyle(.borderedProminent)
-
         
     }
 }
