@@ -325,7 +325,7 @@ struct PlayerTimers: View {
                         
                     
                     if roundScoresList.count >= 1 {
-                        NavigationLink(destination: SubmitPlayerScores(roundScoresList: $roundScoresList,
+                        NavigationLink(destination: SessionReview(roundScoresList: $roundScoresList,
                                                                        selectedTennisClass: $selectedTennisClass)) {
                             Text("Session View")
                         }
