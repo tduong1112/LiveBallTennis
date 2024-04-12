@@ -10,7 +10,7 @@ import AVFoundation
 
 let DOUBLES_PAIR_COUNT = 2
 let ROUND_DEFAULT_PREVIEW_TIME = 2
-let SECONDS_PER_MINUTE = 60
+let SECONDS_PER_MINUTE = 5
 let WARNING_TIME_SECONDS = SECONDS_PER_MINUTE * 1 + 30 // 1 minute 30 second warning time
 
 class StopwatchViewModel: ObservableObject {
@@ -76,12 +76,13 @@ struct DoublesRecord: Codable {
     init(player1Name: String, 
          player2Name: String ,
          timeSpentOnHill: Int,
-         isRoundEndingTeam: Bool){
+         isRoundEndingTeam: Bool,
+         round: Int){
         self.player1Name = player1Name
         self.player2Name = player2Name
         self.timeSpentOnHill = timeSpentOnHill
         self.isRoundEndingTeam = isRoundEndingTeam
-        self.round = 0
+        self.round = round
         
     }
 }
@@ -178,6 +179,7 @@ struct PlayerTimers: View {
                     if newValue >= stopwatchViewModel.timePerRound && !roundTimerExpiredAlarm {
                         roundTimerExpiredAlarm = true
                         SoundManager.instance.playSound()
+                        stopwatchViewModel.stop()
                     } else if WARNING_TIME_SECONDS > stopwatchViewModel.timePerRound && !warningTimerExpiredAlarm {
                         warningTimerExpiredAlarm = true // Avoid a case where timer is set to 1 minute and cause some weirdness
                     }
@@ -218,34 +220,38 @@ struct PlayerTimers: View {
             // Player Card Section
             VStack {
                 HStack {
-                    if championsSelected.count == 2 {
-                        Image(systemName: "crown.fill")
-                                    .foregroundColor(.yellow)
-                                
-                        ZStack {
-                            // Red colored rectangle
+                    Image(systemName: "crown.fill")
+                        .foregroundColor(.yellow)
+
+                    if championsSelected.count >= 2 {
+                        
+                        ForEach(championsSelected.indices, id: \.self) { index in
+                            HStack {
+                                ZStack {
+                                    // Red colored rectangle
+                                    Rectangle()
+                                        .fill(Color.red)
+                                        .frame(width: 150, height: 50)
+                                        .cornerRadius(10)
+                                    
+                                    // Text inside the rectangle
+                                    Text("\(self.championsSelected[index].playerName)")
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
+                    } else {
+                        HStack {
                             Rectangle()
                                 .fill(Color.red)
                                 .frame(width: 150, height: 50)
                                 .cornerRadius(10)
-                            
-                            // Text inside the rectangle
-                            Text("\(championsSelected[0].playerName)")
-                                .foregroundColor(.white)
+                            Rectangle()
+                                .fill(Color.red)
+                                .frame(width: 150, height: 50)
+                                .cornerRadius(10)
                         }
                         
-                        ZStack {
-                            // Red colored rectangle
-                            Rectangle()
-                                .fill(Color.red)
-                                .frame(width: 150, height: 50)
-                                .cornerRadius(10)
-                            
-                            // Text inside the rectangle
-                            Text("\(championsSelected[1].playerName)")
-                                .foregroundColor(.white)
-                        }
-
                     }
                 }
                 LazyVGrid(columns: columns, spacing: 10) {
@@ -371,7 +377,7 @@ struct PlayerTimers: View {
         }
         
         // If the second player of the doubles pair is selected, start the timer and put the champ at the top of the screen and remove the activePlayers from the list view
-        if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
+        if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning && !roundTimerExpiredAlarm{
             returnChampsBackToPlayerList()
 
             stopwatchViewModel.start()
@@ -384,6 +390,9 @@ struct PlayerTimers: View {
             // Adding this toggles the player card immediately after the timer stops. Comment if it just clears the timer
             playerRows[index].activePlayer.toggle()
             playerSelectCount += playerRows[index].activePlayer ? 1 : -1
+        } else if roundTimerExpiredAlarm{
+            addChampButtonView()
+
         }
     }
     
@@ -444,7 +453,8 @@ struct PlayerTimers: View {
             player1Name: championsSelected[0].playerName,
             player2Name: championsSelected[1].playerName,
             timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime,
-            isRoundEndingTeam: endOfRound
+            isRoundEndingTeam: endOfRound,
+            round: roundCount
         ))
         
         doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
@@ -497,8 +507,11 @@ struct PlayerTimers: View {
        
        // Cancel Action is to reselect the actual champions.
         let cancelAction = UIAlertAction(title: "Cancel", style: .default) { _ in
+            addDoublesRecord(endOfRound: false)
+            returnChampsBackToPlayerList()
             resetAllActivePlayers()
-            stopwatchViewModel.start()
+            stopwatchViewModel.resetPlayer()
+
         }
        alertController.addAction(cancelAction)
        
@@ -541,7 +554,7 @@ struct PlayerTimers: View {
                                 "manny", "who that", "feafe",
                                 "manny", "who that", "feafe"]),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
-        selectedTennisClass: .constant("FortuneTennis 3.5")
+        selectedTennisClass: .constant("FortuneTennis 4.0")
     )
 }
 

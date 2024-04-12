@@ -135,11 +135,11 @@ struct SubmitSession_Previews: PreviewProvider {
         SessionSubmit(roundScoresList: .constant(
             [
                 [
-                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true),
-                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
+                    DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true, round: 1),
+                    DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 1)
                 ],
                 [
-                 DoublesRecord(player1Name: "2 TESTER 5", player2Name: "2 TESTER 6", timeSpentOnHill: 130, isRoundEndingTeam: true)
+                 DoublesRecord(player1Name: "2 TESTER 5", player2Name: "2 TESTER 6", timeSpentOnHill: 130, isRoundEndingTeam: true, round: 2)
                  ]
             ]),
                selectedTennisClass: .constant("FortuneTennis 3.5")

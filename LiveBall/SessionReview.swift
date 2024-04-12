@@ -82,38 +82,38 @@ struct SessionReview: View {
     }
     
 }
-struct SessionReview_Previews: PreviewProvider {
-    static var previews: some View {
-        SessionReview(roundScoresList: .constant(
-            [
-                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true),
-                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
-                ],
-                [DoublesRecord(player1Name: "2 TESTER 1", player2Name: "2 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "2 TESTER 3", player2Name: "2 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "2 TESTER 5", player2Name: "2 TESTER 6", timeSpentOnHill: 130, isRoundEndingTeam: true),
-                 DoublesRecord(player1Name: "2 TESTER 7", player2Name: "2 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
-                ],
-                [DoublesRecord(player1Name: "3 TESTER 1", player2Name: "3 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "3 TESTER 3", player2Name: "3 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "3 TESTER 5", player2Name: "3 TESTER 6", timeSpentOnHill: 120, isRoundEndingTeam: true),
-                 DoublesRecord(player1Name: "3 TESTER 7", player2Name: "3 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
-                ],
-                [DoublesRecord(player1Name: "4 TESTER 1", player2Name: "4 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "4 TESTER 3", player2Name: "4 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "4 TESTER 5", player2Name: "4 TESTER 6", timeSpentOnHill: 180, isRoundEndingTeam: true),
-                 DoublesRecord(player1Name: "4 TESTER 7", player2Name: "4 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
-                ],
-                [DoublesRecord(player1Name: "5 TESTER 1", player2Name: "5 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "5 TESTER 3", player2Name: "5 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
-                 DoublesRecord(player1Name: "5 TESTER 5", player2Name: "5 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true),
-                 DoublesRecord(player1Name: "5 TESTER 7", player2Name: "5 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
-                ]
-            ]),
-               selectedTennisClass: .constant("FortuneTennis 3.5")
-        )
+//struct SessionReview_Previews: PreviewProvider {
+//    static var previews: some View {
+//        SessionReview(roundScoresList: .constant(
+//            [
+//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true),
+//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
+//                ],
+//                [DoublesRecord(player1Name: "2 TESTER 1", player2Name: "2 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "2 TESTER 3", player2Name: "2 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "2 TESTER 5", player2Name: "2 TESTER 6", timeSpentOnHill: 130, isRoundEndingTeam: true),
+//                 DoublesRecord(player1Name: "2 TESTER 7", player2Name: "2 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
+//                ],
+//                [DoublesRecord(player1Name: "3 TESTER 1", player2Name: "3 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "3 TESTER 3", player2Name: "3 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "3 TESTER 5", player2Name: "3 TESTER 6", timeSpentOnHill: 120, isRoundEndingTeam: true),
+//                 DoublesRecord(player1Name: "3 TESTER 7", player2Name: "3 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
+//                ],
+//                [DoublesRecord(player1Name: "4 TESTER 1", player2Name: "4 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "4 TESTER 3", player2Name: "4 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "4 TESTER 5", player2Name: "4 TESTER 6", timeSpentOnHill: 180, isRoundEndingTeam: true),
+//                 DoublesRecord(player1Name: "4 TESTER 7", player2Name: "4 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
+//                ],
+//                [DoublesRecord(player1Name: "5 TESTER 1", player2Name: "5 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "5 TESTER 3", player2Name: "5 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false),
+//                 DoublesRecord(player1Name: "5 TESTER 5", player2Name: "5 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true),
+//                 DoublesRecord(player1Name: "5 TESTER 7", player2Name: "5 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false)
+//                ]
+//            ]),
+//               selectedTennisClass: .constant("FortuneTennis 3.5")
+//        )
 
-    }
-}
+//    }
+//}
