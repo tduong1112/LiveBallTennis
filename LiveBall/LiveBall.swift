@@ -11,7 +11,7 @@ import SwiftUI
 struct LiveBall: App {
     var body: some Scene {
         WindowGroup {
-            TennisClassSelect()
+            SessionOptionSelect()
         }
     }
 }
