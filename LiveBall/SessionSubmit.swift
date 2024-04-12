@@ -25,8 +25,7 @@ struct SessionSubmit: View {
             Text("Submit Session Page")
                 .onAppear {
                     // Run your function here
-                    print("Next view appeared")
-                    submitSession()
+//                    submitSession()
                 }
             
             if let result = submissionResult {
@@ -38,95 +37,97 @@ struct SessionSubmit: View {
                 Text("Loading")
             }
             
-            Button(action: {
-                submitSession()
-            }) {
-                Text("Resubmit Session")
-            }
-            .buttonStyle(.borderedProminent)
+//            Button(action: {
+//                submitSession()
+//            }) {
+//                Text("Resubmit Session")
+//            }
+//            .buttonStyle(.borderedProminent)
         }
     }
     
-    private func submitSession() {
-        let scores = ScoreSubmission(
-            id: UUID(),
-            timestamp: Date(),
-            selectedTennisClass: "FortuneTennis 3.5",
-            submitPlayerScores: roundScoresList.enumerated().map { (index, roundScores) in
-                return roundScores.map { record in
-                    var modifiedRecord = record // Make a mutable copy
-                    modifiedRecord.round = index + 1 // Set the round attribute
-                    return modifiedRecord
-                }
-            }
-
-        )
-
-
-        let encoder = JSONEncoder()
-
-        // Set date encoding strategy to ISO8601
-        encoder.dateEncodingStrategy = .iso8601
-
-        do {
-            // Encode the data to JSON format
-            let jsonData = try encoder.encode(scores)
-            postSessionData(postData:  jsonData)
-            // Convert JSON data to string
-        } catch {
-            print("Error encoding data: \(error.localizedDescription)")
-        }
-    }
     
-    private func postSessionData(postData : Data) {
-        var request = URLRequest(url: URL(string: "https://5rbu4c8mn8.execute-api.us-east-1.amazonaws.com/session")!,timeoutInterval: Double.infinity)
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        request.httpMethod = "POST"
-        request.httpBody = postData
+}
 
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            // Check for error
-            if let error = error {
-                print("Error: \(error)")
-                return
-            }
 
-            // Check for response
-            guard let httpResponse = response as? HTTPURLResponse else {
-                print("Invalid response")
-                return
-            }
+func submitSession(sessionName: String, roundRecord: [DoublesRecord], roundCount: Int) -> String {
+    let scores = ScoreSubmission(
+        id: UUID(),
+        timestamp: Date(),
+        selectedTennisClass: sessionName,
+        submitPlayerScores:  roundRecord,
+        round: roundCount
+    )
+    
+    var result = "Failed"
 
-            // Print status code
-            print("Status Code: \(httpResponse.statusCode)")
-            if httpResponse.statusCode == 200 {
-                self.submissionResult = "Success"
+
+    let encoder = JSONEncoder()
+
+    // Set date encoding strategy to ISO8601
+    encoder.dateEncodingStrategy = .iso8601
+
+    do {
+        // Encode the data to JSON format
+        let jsonData = try encoder.encode(scores)
+        result = postSessionData(postData:  jsonData)
+        // Convert JSON data to string
+    } catch {
+        print("Error encoding data: \(error.localizedDescription)")
+    }
+    return result
+}
+
+func postSessionData(postData : Data) -> String{
+    var request = URLRequest(url: URL(string: "https://5rbu4c8mn8.execute-api.us-east-1.amazonaws.com/session")!,timeoutInterval: Double.infinity)
+    var submissionResult = "Error"
+    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+
+    request.httpMethod = "POST"
+    request.httpBody = postData
+
+    let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        // Check for error
+        if let error = error {
+            print("Error: \(error)")
+            return
+        }
+
+        // Check for response
+        guard let httpResponse = response as? HTTPURLResponse else {
+            print("Invalid response")
+            return
+        }
+
+        // Print status code
+        print("Status Code: \(httpResponse.statusCode)")
+        if httpResponse.statusCode == 200 {
+            submissionResult = "Success"
+        } else {
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                submissionResult = "Error: \(httpResponse.statusCode) - \(responseString)"
             } else {
-                if let data = data, let responseString = String(data: data, encoding: .utf8) {
-                    self.submissionResult = "Error: \(httpResponse.statusCode) - \(responseString)"
-                } else {
-                    self.submissionResult = "Error: \(httpResponse.statusCode)"
-                }
-            }
-
-            // Check for data
-            guard let data = data else {
-                print("No data received")
-                return
-            }
-
-            // Print data as string
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("Response Data: \(responseString)")
-            } else {
-                print("Unable to convert data to string")
+                submissionResult = "Error: \(httpResponse.statusCode)"
             }
         }
 
-        task.resume()
+        // Check for data
+        guard let data = data else {
+            print("No data received")
+            return
+        }
+
+        // Print data as string
+        if let responseString = String(data: data, encoding: .utf8) {
+            print("Response Data: \(responseString)")
+        } else {
+            print("Unable to convert data to string")
+        }
     }
 
+    task.resume()
+    return submissionResult
 }
 
 struct SubmitSession_Previews: PreviewProvider {

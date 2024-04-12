@@ -9,8 +9,9 @@ import SwiftUI
 import AVFoundation
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_PREVIEW_TIME = 1
-let SECONDS_PER_MINUTE = 15
+let ROUND_DEFAULT_PREVIEW_TIME = 2
+let SECONDS_PER_MINUTE = 60
+let WARNING_TIME_SECONDS = SECONDS_PER_MINUTE * 1 + 30 // 1 minute 30 second warning time
 
 class StopwatchViewModel: ObservableObject {
     @Published var elapsedPlayerTime = 0
@@ -112,7 +113,8 @@ struct PlayerTimers: View {
     @State private var playerRows: [PlayerItem]
     
     @State private var showingErrorAlert = false
-    @State private var isTimerExpired = false
+    @State private var roundTimerExpiredAlarm = false
+    @State private var warningTimerExpiredAlarm = false
     @State private var roundEndScoreState = false
 
     @State private var roundCount = 1
@@ -173,9 +175,15 @@ struct PlayerTimers: View {
                     }
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
-                    if newValue >= stopwatchViewModel.timePerRound && !isTimerExpired {
-                        isTimerExpired = true
+                    if newValue >= stopwatchViewModel.timePerRound && !roundTimerExpiredAlarm {
+                        roundTimerExpiredAlarm = true
                         SoundManager.instance.playSound()
+                    } else if WARNING_TIME_SECONDS > stopwatchViewModel.timePerRound && !warningTimerExpiredAlarm {
+                        warningTimerExpiredAlarm = true // Avoid a case where timer is set to 1 minute and cause some weirdness
+                    }
+                    else if newValue >= (stopwatchViewModel.timePerRound - WARNING_TIME_SECONDS) && !warningTimerExpiredAlarm {
+                        print("Warning Time Reached")
+                        warningTimerExpiredAlarm = true
                     }
                 }
                 
@@ -512,10 +520,15 @@ struct PlayerTimers: View {
     
     private func nextRound() {
         stopwatchViewModel.stop()
+        submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
         roundEndScoreState = false
+        warningTimerExpiredAlarm = false
+        roundTimerExpiredAlarm = false
+        roundCount += 1
+
     }
 
     

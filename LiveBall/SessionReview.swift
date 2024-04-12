@@ -12,7 +12,8 @@ struct ScoreSubmission: Codable {
     let id: UUID
     let timestamp: Date
     let selectedTennisClass: String
-    let submitPlayerScores: [[DoublesRecord]]
+    let submitPlayerScores: [DoublesRecord]
+    let round: Int
 }
 
 struct SessionReview: View {
