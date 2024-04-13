@@ -10,7 +10,7 @@ import AVFoundation
 
 let DOUBLES_PAIR_COUNT = 2
 let ROUND_DEFAULT_PREVIEW_TIME = 2
-let SECONDS_PER_MINUTE = 5
+let SECONDS_PER_MINUTE = 60
 let WARNING_TIME_SECONDS = SECONDS_PER_MINUTE * 1 + 30 // 1 minute 30 second warning time
 
 class StopwatchViewModel: ObservableObject {
@@ -26,12 +26,15 @@ class StopwatchViewModel: ObservableObject {
     }
     
     func start() {
+        if self.elapsedRoundTime >= self.timePerRound {
+            return
+        }
+        
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             self.elapsedPlayerTime += 1
             self.elapsedRoundTime += 1
         }
         isRunning = true
-        
     }
     
     func stop() {
@@ -41,10 +44,7 @@ class StopwatchViewModel: ObservableObject {
     }
     
     func resetPlayer() {
-        timer?.invalidate()
-        timer = nil
         elapsedPlayerTime = 0
-        isRunning = false
     }
     
     func resetRound() {
@@ -165,14 +165,13 @@ struct PlayerTimers: View {
                 HStack {
                     if roundEndScoreState {
                         Text("Round Ended")
-                            .font(.title)
+                            .font(.largeTitle)
                     } else {
-                        Text("Time Left in Round: ")
-                            .font(.title)
-                        
                         Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
-                            .font(.title)
+                            .font(.largeTitle)
                             .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+                        
+
                     }
                 }
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
@@ -222,38 +221,34 @@ struct PlayerTimers: View {
                 HStack {
                     Image(systemName: "crown.fill")
                         .foregroundColor(.yellow)
-
                     if championsSelected.count >= 2 {
-                        
-                        ForEach(championsSelected.indices, id: \.self) { index in
-                            HStack {
-                                ZStack {
-                                    // Red colored rectangle
-                                    Rectangle()
-                                        .fill(Color.red)
-                                        .frame(width: 150, height: 50)
-                                        .cornerRadius(10)
-                                    
-                                    // Text inside the rectangle
-                                    Text("\(self.championsSelected[index].playerName)")
-                                        .foregroundColor(.white)
-                                }
-                            }
-                        }
-                    } else {
-                        HStack {
+                        ZStack {
+                            // Red colored rectangle
                             Rectangle()
                                 .fill(Color.red)
                                 .frame(width: 150, height: 50)
                                 .cornerRadius(10)
+                            
+                            // Text inside the rectangle
+                            Text("\(self.championsSelected[0].playerName)")
+                                .foregroundColor(.white)
+                        }
+                            
+                        ZStack {
+                            // Red colored rectangle
                             Rectangle()
                                 .fill(Color.red)
                                 .frame(width: 150, height: 50)
                                 .cornerRadius(10)
+                            
+                            // Text inside the rectangle
+                            Text("\(self.championsSelected[1].playerName)")
+                                .foregroundColor(.white)
                         }
-                        
                     }
                 }
+            
+            
                 LazyVGrid(columns: columns, spacing: 10) {
                     ForEach(playerRows, id: \.id) { player in
                         Button(action: {
@@ -316,6 +311,19 @@ struct PlayerTimers: View {
                 }
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
+                    if championsSelected.count >= DOUBLES_PAIR_COUNT && !roundTimerExpiredAlarm{
+                        Button(action: {
+                            // Change color logic here
+                            if !roundEndScoreState {
+                                stopwatchViewModel.isRunning  ? stopwatchViewModel.stop() : stopwatchViewModel.start()
+                            }
+                        }) {
+                            Text(stopwatchViewModel.isRunning  ? "Pause" : "Resume")
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
+                    
                     if roundEndScoreState {
                         Button(action: {
                             // Change color logic here
@@ -370,30 +378,9 @@ struct PlayerTimers: View {
             return
         }
 
-        //Standard Toggling of PlayerTimers when the timer hasn't started
-        if playerSelectCount < DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning {
-            playerRows[index].activePlayer.toggle()
-            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
-        }
-        
-        // If the second player of the doubles pair is selected, start the timer and put the champ at the top of the screen and remove the activePlayers from the list view
-        if playerSelectCount >= DOUBLES_PAIR_COUNT && !stopwatchViewModel.isRunning && !roundTimerExpiredAlarm{
-            returnChampsBackToPlayerList()
-
-            stopwatchViewModel.start()
-            addChampButtonView()
-        } else if stopwatchViewModel.isRunning && !playerRows[index].activePlayer{
-            stopwatchViewModel.stop()
-            addDoublesRecord(endOfRound: false)
-            stopwatchViewModel.resetPlayer()
-            resetAllActivePlayers()
-            // Adding this toggles the player card immediately after the timer stops. Comment if it just clears the timer
-            playerRows[index].activePlayer.toggle()
-            playerSelectCount += playerRows[index].activePlayer ? 1 : -1
-        } else if roundTimerExpiredAlarm{
-            addChampButtonView()
-
-        }
+        togglePlayerItem(idx: index)
+        // Live Ball Timer states are event triggered by button presses.
+        liveBallStateMachine(idx: index)
     }
     
     // Toggling Logic for the color. Selects which color based on that PlayerItem's active Status
@@ -411,18 +398,36 @@ struct PlayerTimers: View {
         return playerRows[index].activePlayer ? "crown.fill" : "crown"
         
     }
-    
-    private func addChampButtonView() {
-        
-        for index in playerRows.indices {
-            if playerRows[index].activePlayer{
-                championsSelected.append(playerRows[index])
-            }
-        }
-        removeActivePlayers()
 
+    private func togglePlayerItem(idx: Int) {
+        playerRows[idx].activePlayer.toggle()
+        playerSelectCount += playerRows[idx].activePlayer ? 1 : -1
     }
+    
+    
+    private func liveBallStateMachine(idx: Int) {
+        print(playerSelectCount)
 
+        switch playerSelectCount {
+            case 0...1:
+                return
+            case 2:
+                if !stopwatchViewModel.isRunning {
+                    addChampButtonView()
+                    stopwatchViewModel.start()
+                }
+            case 3:
+                addDoublesRecord(endOfRound: false)
+                stopwatchViewModel.resetPlayer()
+            case 4:
+                returnChampsBackToPlayerList()
+                addChampButtonView()
+                playerSelectCount = 2
+            default:
+                print("Error reached Default")
+            }
+    }
+    
     private func removeActivePlayers() {
         // Filter out the items where activePlayer is true
         let filteredPlayerRows = playerRows.filter { !$0.activePlayer }
@@ -441,6 +446,15 @@ struct PlayerTimers: View {
         playerRows.append(championsSelected[0])
         playerRows.append(championsSelected[1])
         championsSelected = []
+    }
+    
+    private func addChampButtonView() {
+        for index in playerRows.indices {
+            if playerRows[index].activePlayer{
+                championsSelected.append(playerRows[index])
+            }
+        }
+        removeActivePlayers()
     }
 
     
@@ -499,7 +513,6 @@ struct PlayerTimers: View {
         if championsSelected.count < DOUBLES_PAIR_COUNT {
             return
         }
-//        addChampButtonView()
         let p1 = championsSelected[0].playerName
         let p2 = championsSelected[1].playerName
         // Create an alert controller
@@ -551,8 +564,7 @@ struct PlayerTimers: View {
 #Preview {
     PlayerTimers(
         playerNames: .constant(["asdf", "bweaewaveaveaw", "graphic", 
-                                "manny", "who that", "feafe",
-                                "manny", "who that", "feafe"]),
+                                "manny", "who that"]),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
         selectedTennisClass: .constant("FortuneTennis 4.0")
     )
