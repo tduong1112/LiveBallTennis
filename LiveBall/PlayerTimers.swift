@@ -311,7 +311,7 @@ struct PlayerTimers: View {
                 }
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
-                    if championsSelected.count >= DOUBLES_PAIR_COUNT && !roundTimerExpiredAlarm{
+                    if championsSelected.count >= DOUBLES_PAIR_COUNT && !roundTimerExpiredAlarm && !roundEndScoreState{
                         Button(action: {
                             // Change color logic here
                             if !roundEndScoreState {
@@ -406,7 +406,6 @@ struct PlayerTimers: View {
     
     
     private func liveBallStateMachine(idx: Int) {
-        print(playerSelectCount)
 
         switch playerSelectCount {
             case 0...1:
@@ -479,7 +478,7 @@ struct PlayerTimers: View {
         for index in playerRows.indices {
             playerRows[index].activePlayer = false
         }
-        playerSelectCount = 0
+        playerSelectCount = championsSelected.count
     }
     
     private func resetDoublesRecord() {
@@ -532,7 +531,6 @@ struct PlayerTimers: View {
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
            roundScoresList.append(doublesRecordList)
-           returnChampsBackToPlayerList()
            resetAllActivePlayers()
            roundEndScoreState = true
        }
@@ -546,7 +544,7 @@ struct PlayerTimers: View {
     
     private func nextRound() {
         stopwatchViewModel.stop()
-        submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
+//        submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
@@ -554,6 +552,7 @@ struct PlayerTimers: View {
         warningTimerExpiredAlarm = false
         roundTimerExpiredAlarm = false
         roundCount += 1
+        stopwatchViewModel.start()
 
     }
 
@@ -563,8 +562,8 @@ struct PlayerTimers: View {
 
 #Preview {
     PlayerTimers(
-        playerNames: .constant(["asdf", "bweaewaveaveaw", "graphic", 
-                                "manny", "who that"]),
+        playerNames: .constant(["1", "2", "3",
+                                "4", "5"]),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
         selectedTennisClass: .constant("FortuneTennis 4.0")
     )
