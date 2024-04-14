@@ -9,7 +9,16 @@ import SwiftUI
 
 let DEFAULT_CREATE_CLASS_OPTION = "Create a class"
 
+class PathState: ObservableObject {
+  enum Destination: String, Hashable {
+    case first,second,third, playerClassWritten, playerClassSelected
+  }
+  @Published var path: [Destination] = []
+}
+
 struct SessionOptionSelect: View {
+    @StateObject var pathState = PathState()
+
     @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION,
                                        "FortuneTennis 3.5",
                                        "FortuneTennis 3.5-4.0+",
@@ -35,7 +44,7 @@ struct SessionOptionSelect: View {
     
     
     var body: some View {
-        NavigationView {
+        NavigationStack (path: $pathState.path){
             VStack {
                 Text("Create A Game")
                     .font(.title)
@@ -137,12 +146,12 @@ struct SessionOptionSelect: View {
                 }
                 .padding()
                 if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
-                    NavigationLink(destination: PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound, selectedTennisClass: $selectedClass)) {
+                    NavigationLink(value: PathState.Destination.playerClassWritten) {
                         Text("Create Session")
                     }
                     .buttonStyle(.borderedProminent)
                 } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
-                    NavigationLink(destination: PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound, selectedTennisClass: $newClassName)) {
+                    NavigationLink(value: PathState.Destination.playerClassSelected ) {
                         Text("Create Session")
                     }
                     .buttonStyle(.borderedProminent)
@@ -159,9 +168,30 @@ struct SessionOptionSelect: View {
                     }
                 }
             } // VStack
-        } // NavigationView
+              .navigationDestination(for: PathState.Destination.self) { destination in
+                  switch destination {
+                  case .first:
+                      FirstView()
+                  case .second:
+                      SecondView()
+                  case .third:
+                      ThirdView()
+                      
+                  case .playerClassWritten:
+                      PlayerTimers(playerNames: $playerNames,
+                                   timePerRound: $timePerRound,
+                                   selectedTennisClass: $newClassName)
+                  case .playerClassSelected:
+                      PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound, selectedTennisClass: $selectedClass)
+                      
+                  }
+              }
+
+        } // NavigationStack
+        .environmentObject(pathState)
 
     } //Body View
+
 }
 
 #Preview {

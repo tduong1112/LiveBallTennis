@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 let ROUND_ENDING_POINTS = 1
-let HIGHEST_TIME_ROUND_POINTS = 1
+let HIGHEST_TIME_ROUND_POINTS = 3
 let HIGHEST_TIME_SESSION_POINTS = 5
 
 struct PlayerScoresView: View {
@@ -41,12 +41,15 @@ struct ScoreSubmission: Codable {
 }
 
 struct SessionReview: View {
+    @EnvironmentObject var pathState: PathState
+
     @Binding var roundScoresList: [[DoublesRecord]]
     @Binding var selectedTennisClass: String
     
     @State var pointsViewToggle = false
     @State var playerScores = [String: Int]()
-    
+    @State private var navigateBack = false
+
     
     init(roundScoresList: Binding<[[DoublesRecord]]>, selectedTennisClass: Binding<String>) {
         _roundScoresList = roundScoresList
@@ -104,9 +107,13 @@ struct SessionReview: View {
                 let playerScores = self.getPlayerScoresFromRoundScoresList(forSession: roundScoresList)
                 PlayerScoresView(playerScores: playerScores)
             }
-            NavigationLink(destination: SessionOptionSelect()) {
-                Text("Start New Session")
-            }
+
+            Button(action: {
+                pathState.path = .init() // take everything off the navigation stack
+                
+            }, label: {
+              Text("Create New Session")
+            })
            .buttonStyle(.borderedProminent)
 
         }
@@ -189,6 +196,7 @@ struct SessionReview_Previews: PreviewProvider {
             ]),
                selectedTennisClass: .constant("FortuneTennis 3.5")
         )
+        .environmentObject(PathState())
 
     }
 }

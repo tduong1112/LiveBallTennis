@@ -531,6 +531,8 @@ struct PlayerTimers: View {
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
            roundScoresList.append(doublesRecordList)
+           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
+
            resetAllActivePlayers()
            roundEndScoreState = true
        }
@@ -544,7 +546,6 @@ struct PlayerTimers: View {
     
     private func nextRound() {
         stopwatchViewModel.stop()
-        submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()
