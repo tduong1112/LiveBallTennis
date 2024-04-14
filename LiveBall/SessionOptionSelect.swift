@@ -150,28 +150,45 @@ struct SessionOptionSelect: View {
                     }
                 }
                 .padding()
-                if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
-                    NavigationLink(value: PathState.Destination.playerClassWritten) {
-                        Text("Create Session")
+                HStack{
+                    if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
+                        Button {
+                            sessionRecords.roundRecords = []
+                        } label: {
+                            NavigationLink(value: PathState.Destination.playerClassWritten ) {
+                                Text("Create Session")
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+                    } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
+                        Button {
+                            sessionRecords.roundRecords = []
+                        } label: {
+                            NavigationLink(value: PathState.Destination.playerClassSelected ) {
+                                Text("Create Session")
+                            }
+                            .buttonStyle(.borderedProminent)
+                        }
+
+                    } else {
+                        Button(action: {
+                            // Display error message here
+                            self.showAlert = true
+                        }) {
+                            Text("Create Session")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .alert(isPresented: $showAlert) {
+                            Alert(title: Text("Error"), message: Text("Session Created Name is empty"), dismissButton: .default(Text("OK")))
+                        }
                     }
-                    .buttonStyle(.borderedProminent)
-                } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
-                    NavigationLink(value: PathState.Destination.playerClassSelected ) {
-                        Text("Create Session")
+                    if !sessionRecords.roundRecords.isEmpty {
+                        NavigationLink(value: PathState.Destination.playerClassSelected ) {
+                            Text("Resume Session")
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
-                } else {
-                    Button(action: {
-                        // Display error message here
-                        self.showAlert = true
-                    }) {
-                        Text("Create Session")
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .alert(isPresented: $showAlert) {
-                        Alert(title: Text("Error"), message: Text("Session Created Name is empty"), dismissButton: .default(Text("OK")))
-                    }
-                }
+                } // HStack
             } // VStack
               .navigationDestination(for: PathState.Destination.self) { destination in
                   switch destination {
