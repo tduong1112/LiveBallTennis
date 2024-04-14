@@ -326,7 +326,6 @@ struct PlayerTimers: View {
                     
                     if roundEndScoreState {
                         Button(action: {
-                            // Change color logic here
                             self.nextRound()
                             
                         }) {
@@ -545,7 +544,7 @@ struct PlayerTimers: View {
     
     private func nextRound() {
         stopwatchViewModel.stop()
-//        submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
+        submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
         resetDoublesRecord()
         resetAllActivePlayers()
         stopwatchViewModel.resetRound()

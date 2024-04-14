@@ -22,7 +22,7 @@ struct SessionOptionSelect: View {
 
     @State private var showAlert = false // Alert state
     @State private var timePerRound = 15;
-    @State private var playerNames: [String] = ["asdf", "ber"]
+    @State private var playerNames: [String] = ["Manny"]
     @State private var playerNameInput = ""
     
     @State private var selectRegularPlayer = ""
