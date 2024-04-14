@@ -152,8 +152,7 @@ struct PlayerTimers: View {
         _selectedTennisClass = selectedTennisClass
         _stopwatchViewModel = StateObject(wrappedValue: StopwatchViewModel(timePerRound: timePerRound.wrappedValue))
         
-        playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }
-        
+        playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }        
     }
     
     var body: some View {

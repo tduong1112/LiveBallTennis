@@ -152,24 +152,23 @@ struct SessionOptionSelect: View {
                 .padding()
                 HStack{
                     if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
-                        Button {
-                            sessionRecords.roundRecords = []
-                        } label: {
-                            NavigationLink(value: PathState.Destination.playerClassWritten ) {
-                                Text("Create Session")
-                            }
-                            .buttonStyle(.borderedProminent)
+                        NavigationLink(value: PathState.Destination.playerClassWritten) {
+                            Text("Create Session")
                         }
+                        .simultaneousGesture(TapGesture().onEnded {
+                            sessionRecords.roundRecords = []
+                            print(sessionRecords.roundRecords)
+                        })
+                        .buttonStyle(.borderedProminent)
                     } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
-                        Button {
-                            sessionRecords.roundRecords = []
-                        } label: {
-                            NavigationLink(value: PathState.Destination.playerClassSelected ) {
-                                Text("Create Session")
-                            }
-                            .buttonStyle(.borderedProminent)
+                        NavigationLink(value: PathState.Destination.playerClassSelected ) {
+                            Text("Create Session")
                         }
-
+                        .simultaneousGesture(TapGesture().onEnded {
+                            sessionRecords.roundRecords = []
+                            print(sessionRecords.roundRecords)
+                        })
+                        .buttonStyle(.borderedProminent)
                     } else {
                         Button(action: {
                             // Display error message here
