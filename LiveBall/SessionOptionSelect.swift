@@ -28,9 +28,7 @@ struct SessionOptionSelect: View {
     @State private var selectRegularPlayer = ""
     @State private var regularPlayerNames = ["Manny", "Matthew", "Andre", "Vanessa", "Ben"]
     @State private var sessionClearWarning = false
-    
-    @State private var showNavigateAlert = false
-    @State private var navigateToSecondView = false
+
 
 
     let timePerRoundPickerList = Array(1...30)
@@ -162,24 +160,7 @@ struct SessionOptionSelect: View {
                 }
             } // VStack
         } // NavigationView
-        .navigationTitle("First View")
-        .navigationBarItems(trailing:
-            Button(action: {
-                self.showNavigateAlert = true
-            }) {
-                Image(systemName: "info.circle")
-            }
-        )
-        .alert(isPresented: $showNavigateAlert) {
-            Alert(
-                title: Text("Warning"),
-                message: Text("Going back will lose unsaved data."),
-                primaryButton: .default(Text("Continue")) {
-                    self.navigateToSecondView = false
-                },
-                secondaryButton: .cancel()
-            )
-        }
+
     } //Body View
 }
 

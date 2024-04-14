@@ -68,7 +68,7 @@ struct SessionReview: View {
             
             
             
-            if pointsViewToggle {
+            if !pointsViewToggle {
                 ForEach(roundScoresList.indices, id: \.self) { index in
                     Text("Round \(index + 1)")
                         .font(.title)
@@ -99,17 +99,18 @@ struct SessionReview: View {
                     Text("\(sessionMaxTime.timeSpentOnHill / 60)m \(sessionMaxTime.timeSpentOnHill % 60)s by \(sessionMaxTime.player1Name) and \(sessionMaxTime.player2Name)")
                     
                 }
-                NavigationLink(destination: SessionSubmit(roundScoresList: $roundScoresList,
-                                                          selectedTennisClass: $selectedTennisClass)) {
-                    Text("Submit Session")
-                }
-                                                          .buttonStyle(.borderedProminent)
                 
             } else {
                 let playerScores = self.getPlayerScoresFromRoundScoresList(forSession: roundScoresList)
                 PlayerScoresView(playerScores: playerScores)
             }
+            NavigationLink(destination: SessionOptionSelect()) {
+                Text("Start New Session")
+            }
+           .buttonStyle(.borderedProminent)
+
         }
+
 
     }
     
