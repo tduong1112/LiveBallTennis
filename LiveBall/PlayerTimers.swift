@@ -330,7 +330,7 @@ struct PlayerTimers: View {
                             self.nextRound()
                             
                         }) {
-                            Text("Next Round")
+                            Text("Start Next Round")
                         }
                         .buttonStyle(.borderedProminent)
                     } else {
@@ -406,14 +406,15 @@ struct PlayerTimers: View {
     
     
     private func liveBallStateMachine(idx: Int) {
-
         switch playerSelectCount {
             case 0...1:
                 return
             case 2:
+
                 if !stopwatchViewModel.isRunning {
                     addChampButtonView()
                     stopwatchViewModel.start()
+                    return
                 }
             case 3:
                 addDoublesRecord(endOfRound: false)
