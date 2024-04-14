@@ -38,32 +38,32 @@ struct Sandbox: View {
 //      .environmentObject(pathState)
     }
 }
-//------------------FirstView------------------
-struct FirstView: View {
-  var body: some View {
-    NavigationLink("Go to SecondView", value: PathState.Destination.second)
-  }
-}
-
-//-----------------SecondView------------------
-struct SecondView: View {
-  var body: some View {
-    NavigationLink("Go to ThirdView", value: PathState.Destination.third)
-  }
-}
-
-//------------------ThirdView------------------
-struct ThirdView: View {
-  @EnvironmentObject var pathState: PathState
-  var body: some View {
-    Text("RootPath: \(pathState.path.count)")
-    Button(action: {
-      pathState.path = [] // take everything off the navigation stack
-    }, label: {
-      Text("Go to ContentView")
-    })
-  }
-}
+////------------------FirstView------------------
+//struct FirstView: View {
+//  var body: some View {
+//    NavigationLink("Go to SecondView", value: PathState.Destination.second)
+//  }
+//}
+//
+////-----------------SecondView------------------
+//struct SecondView: View {
+//  var body: some View {
+//    NavigationLink("Go to ThirdView", value: PathState.Destination.third)
+//  }
+//}
+//
+////------------------ThirdView------------------
+//struct ThirdView: View {
+//  @EnvironmentObject var pathState: PathState
+//  var body: some View {
+//    Text("RootPath: \(pathState.path.count)")
+//    Button(action: {
+//      pathState.path = [] // take everything off the navigation stack
+//    }, label: {
+//      Text("Go to ContentView")
+//    })
+//  }
+//}
 
 #Preview {
     Sandbox()

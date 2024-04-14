@@ -104,6 +104,8 @@ class SoundManager {
 }
 
 struct PlayerTimers: View {
+    @EnvironmentObject var sessionRecords : SessionRecordList
+
     @Binding var playerNames : [String]
     @Binding var timePerRound: Int
     @Binding var selectedTennisClass: String
@@ -121,7 +123,6 @@ struct PlayerTimers: View {
     @State private var roundCount = 1
     @State private var playerSelectCount = 0;
 
-    @State private var roundScoresList: [[DoublesRecord]] = []
     @State private var championsSelected: [PlayerItem] = []
     @State private var doublesRecordList : [DoublesRecord] = [
         //Debug Double Records for formatting. Uncomment to use.
@@ -345,9 +346,8 @@ struct PlayerTimers: View {
                     
                         
                     
-                    if roundScoresList.count >= 1 {
-                        NavigationLink(destination: SessionReview(roundScoresList: $roundScoresList,
-                                                                       selectedTennisClass: $selectedTennisClass)) {
+                    if sessionRecords.roundRecords.count >= 1 {
+                        NavigationLink(destination: SessionReview(selectedTennisClass: $selectedTennisClass)) {
                             Text("Session View")
                         }
                         .buttonStyle(.borderedProminent)
@@ -530,8 +530,8 @@ struct PlayerTimers: View {
        // Add confirm action
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
-           roundScoresList.append(doublesRecordList)
-           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
+           sessionRecords.roundRecords.append(doublesRecordList)
+//           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
 
            resetAllActivePlayers()
            roundEndScoreState = true
@@ -568,6 +568,7 @@ struct PlayerTimers: View {
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
         selectedTennisClass: .constant("FortuneTennis 4.0")
     )
+    .environmentObject(SessionRecordList())
 }
 
 

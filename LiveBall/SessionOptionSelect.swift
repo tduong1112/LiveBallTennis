@@ -11,13 +11,18 @@ let DEFAULT_CREATE_CLASS_OPTION = "Create a class"
 
 class PathState: ObservableObject {
   enum Destination: String, Hashable {
-    case first,second,third, playerClassWritten, playerClassSelected
+    case playerClassWritten, playerClassSelected
   }
   @Published var path: [Destination] = []
 }
 
+class SessionRecordList: ObservableObject {
+    @Published var roundRecords: [[DoublesRecord]] = []
+}
+
 struct SessionOptionSelect: View {
     @StateObject var pathState = PathState()
+    @StateObject var sessionRecords = SessionRecordList()
 
     @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION,
                                        "FortuneTennis 3.5",
@@ -170,13 +175,6 @@ struct SessionOptionSelect: View {
             } // VStack
               .navigationDestination(for: PathState.Destination.self) { destination in
                   switch destination {
-                  case .first:
-                      FirstView()
-                  case .second:
-                      SecondView()
-                  case .third:
-                      ThirdView()
-                      
                   case .playerClassWritten:
                       PlayerTimers(playerNames: $playerNames,
                                    timePerRound: $timePerRound,
@@ -189,6 +187,7 @@ struct SessionOptionSelect: View {
 
         } // NavigationStack
         .environmentObject(pathState)
+        .environmentObject(sessionRecords)
 
     } //Body View
 

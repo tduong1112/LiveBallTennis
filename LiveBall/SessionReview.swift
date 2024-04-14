@@ -42,8 +42,7 @@ struct ScoreSubmission: Codable {
 
 struct SessionReview: View {
     @EnvironmentObject var pathState: PathState
-
-    @Binding var roundScoresList: [[DoublesRecord]]
+    @EnvironmentObject var sessionRecords : SessionRecordList
     @Binding var selectedTennisClass: String
     
     @State var pointsViewToggle = false
@@ -51,8 +50,7 @@ struct SessionReview: View {
     @State private var navigateBack = false
 
     
-    init(roundScoresList: Binding<[[DoublesRecord]]>, selectedTennisClass: Binding<String>) {
-        _roundScoresList = roundScoresList
+    init(selectedTennisClass: Binding<String>) {
         _selectedTennisClass = selectedTennisClass
     }
 
@@ -72,11 +70,11 @@ struct SessionReview: View {
             
             
             if !pointsViewToggle {
-                ForEach(roundScoresList.indices, id: \.self) { index in
+                ForEach(sessionRecords.roundRecords.indices, id: \.self) { index in
                     Text("Round \(index + 1)")
                         .font(.title)
                     HStack {
-                        if let winners = getRoundEndingTeams(forRound: roundScoresList[index]) {
+                        if let winners = getRoundEndingTeams(forRound: sessionRecords.roundRecords[index]) {
                             Image(systemName: "crown.fill")
                                 .foregroundColor(.yellow)
                             
@@ -84,7 +82,7 @@ struct SessionReview: View {
                         }
                     }
                     HStack{
-                        if let roundMaxTime = getBestTime(forRound: roundScoresList[index]) {
+                        if let roundMaxTime = getBestTime(forRound: sessionRecords.roundRecords[index]) {
                             Image(systemName: "stopwatch")
                             
                             Text("\(roundMaxTime.timeSpentOnHill / 60)m \(roundMaxTime.timeSpentOnHill % 60)s by \(roundMaxTime.player1Name) and \(roundMaxTime.player2Name)")
@@ -93,7 +91,7 @@ struct SessionReview: View {
                     Spacer()
                     
                 }
-                if let sessionMaxTime = getBestTime(forSession: roundScoresList) {
+                if let sessionMaxTime = getBestTime(forSession: sessionRecords.roundRecords) {
                     HStack {
                         Image(systemName: "trophy")
                         Text("Session Best Time")
@@ -104,13 +102,13 @@ struct SessionReview: View {
                 }
                 
             } else {
-                let playerScores = self.getPlayerScoresFromRoundScoresList(forSession: roundScoresList)
+                let playerScores = self.getPlayerScoresFromSession(forSession: sessionRecords.roundRecords)
                 PlayerScoresView(playerScores: playerScores)
             }
 
             Button(action: {
                 pathState.path = .init() // take everything off the navigation stack
-                
+                sessionRecords.roundRecords = .init()
             }, label: {
               Text("Create New Session")
             })
@@ -133,7 +131,7 @@ struct SessionReview: View {
         return session.flatMap { $0 }.max(by: { $0.timeSpentOnHill < $1.timeSpentOnHill })
     }
     
-    private func getPlayerScoresFromRoundScoresList(forSession session: [[DoublesRecord]]) -> [String: Int] {
+    private func getPlayerScoresFromSession(forSession session: [[DoublesRecord]]) -> [String: Int] {
         var tempPlayerScores = [String: Int]()
         // Intialize
         for round in session {
@@ -181,22 +179,9 @@ struct SessionReview: View {
 }
 struct SessionReview_Previews: PreviewProvider {
     static var previews: some View {
-        SessionReview(roundScoresList: .constant(
-            [
-                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 100, isRoundEndingTeam: false, round: 1),
-                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 1),
-                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 5, isRoundEndingTeam: true, round: 1),
-                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 1)
-                ],
-                [DoublesRecord(player1Name: "5 TESTER 1", player2Name: "5 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false, round: 2),
-                 DoublesRecord(player1Name: "5 TESTER 3", player2Name: "5 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
-                 DoublesRecord(player1Name: "5 TESTER 5", player2Name: "5 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true, round: 2),
-                 DoublesRecord(player1Name: "5 TESTER 7", player2Name: "5 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 2)
-                ]
-            ]),
-               selectedTennisClass: .constant("FortuneTennis 3.5")
+        SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5")
         )
         .environmentObject(PathState())
-
+        .environmentObject(SessionRecordList())
     }
 }
