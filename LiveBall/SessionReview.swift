@@ -73,19 +73,19 @@ struct SessionReview: View {
                 ForEach(sessionRecords.roundRecords.indices, id: \.self) { index in
                     Text("Round \(index + 1)")
                         .font(.title)
+                    HStack{
+                        if let roundMaxTime = getBestTime(forRound: sessionRecords.roundRecords[index]) {
+                            Image(systemName: "stopwatch")
+                            
+                            Text("\(roundMaxTime.timeSpentOnHill / 60)m \(roundMaxTime.timeSpentOnHill % 60)s by \(roundMaxTime.player1Name) and \(roundMaxTime.player2Name)")
+                        }
+                    }
                     HStack {
                         if let winners = getRoundEndingTeams(forRound: sessionRecords.roundRecords[index]) {
                             Image(systemName: "crown.fill")
                                 .foregroundColor(.yellow)
                             
                             Text("\(winners.player1Name) and \(winners.player2Name)")
-                        }
-                    }
-                    HStack{
-                        if let roundMaxTime = getBestTime(forRound: sessionRecords.roundRecords[index]) {
-                            Image(systemName: "stopwatch")
-                            
-                            Text("\(roundMaxTime.timeSpentOnHill / 60)m \(roundMaxTime.timeSpentOnHill % 60)s by \(roundMaxTime.player1Name) and \(roundMaxTime.player2Name)")
                         }
                     }
                     Spacer()

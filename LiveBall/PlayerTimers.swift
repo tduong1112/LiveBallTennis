@@ -152,7 +152,7 @@ struct PlayerTimers: View {
         _selectedTennisClass = selectedTennisClass
         _stopwatchViewModel = StateObject(wrappedValue: StopwatchViewModel(timePerRound: timePerRound.wrappedValue))
         
-        playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }        
+        playerRows = playerNames.wrappedValue.map { PlayerItem(playerName: $0) }
     }
     
     var body: some View {
@@ -530,7 +530,7 @@ struct PlayerTimers: View {
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
            sessionRecords.roundRecords.append(doublesRecordList)
-//           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
+           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
 
            resetAllActivePlayers()
            roundEndScoreState = true
