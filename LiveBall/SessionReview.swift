@@ -178,10 +178,11 @@ struct SessionReview: View {
     
 }
 struct SessionReview_Previews: PreviewProvider {
+    static let sessionRecords = SessionRecordList()
     static var previews: some View {
         SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5")
         )
         .environmentObject(PathState())
-        .environmentObject(SessionRecordList())
+        .environmentObject(sessionRecords)
     }
 }

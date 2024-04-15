@@ -13,11 +13,10 @@
 		8858C5DA2BBA200A001391E8 /* TennisAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5D92BBA200A001391E8 /* TennisAppTests.swift */; };
 		8858C5E42BBA200A001391E8 /* TennisAppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5E32BBA200A001391E8 /* TennisAppUITests.swift */; };
 		8858C5E62BBA200A001391E8 /* TennisAppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5E52BBA200A001391E8 /* TennisAppUITestsLaunchTests.swift */; };
-		8858C5F32BBA5DF7001391E8 /* TennisClassSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F22BBA5DF7001391E8 /* TennisClassSelect.swift */; };
+		8858C5F32BBA5DF7001391E8 /* SessionOptionSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F22BBA5DF7001391E8 /* SessionOptionSelect.swift */; };
 		8858C5F52BBA60B4001391E8 /* PlayerTimers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */; };
 		8858C5F72BBB6BA0001391E8 /* Sandbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F62BBB6BA0001391E8 /* Sandbox.swift */; };
 		8858C5F92BBCCD26001391E8 /* SessionReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F82BBCCD26001391E8 /* SessionReview.swift */; };
-		8858C5FE2BC0B505001391E8 /* SessionOptionSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5FD2BC0B504001391E8 /* SessionOptionSelect.swift */; };
 		8858C6012BC604AE001391E8 /* iphone-alarm.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 8858C6002BC604AD001391E8 /* iphone-alarm.mp3 */; };
 		8858C6032BC797E3001391E8 /* SessionSubmit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C6022BC797E3001391E8 /* SessionSubmit.swift */; };
 /* End PBXBuildFile section */
@@ -50,12 +49,11 @@
 		8858C5DF2BBA200A001391E8 /* LiveBallUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LiveBallUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8858C5E32BBA200A001391E8 /* TennisAppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisAppUITests.swift; sourceTree = "<group>"; };
 		8858C5E52BBA200A001391E8 /* TennisAppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisAppUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		8858C5F22BBA5DF7001391E8 /* TennisClassSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TennisClassSelect.swift; sourceTree = "<group>"; };
+		8858C5F22BBA5DF7001391E8 /* SessionOptionSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionOptionSelect.swift; sourceTree = "<group>"; };
 		8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTimers.swift; sourceTree = "<group>"; };
 		8858C5F62BBB6BA0001391E8 /* Sandbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sandbox.swift; sourceTree = "<group>"; };
 		8858C5F82BBCCD26001391E8 /* SessionReview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionReview.swift; sourceTree = "<group>"; };
 		8858C5FC2BC08A7E001391E8 /* Liveball_Icon_WhiteBkgrd_1800.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Liveball_Icon_WhiteBkgrd_1800.jpeg; sourceTree = "<group>"; };
-		8858C5FD2BC0B504001391E8 /* SessionOptionSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionOptionSelect.swift; sourceTree = "<group>"; };
 		8858C6002BC604AD001391E8 /* iphone-alarm.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "iphone-alarm.mp3"; sourceTree = "<group>"; };
 		8858C6022BC797E3001391E8 /* SessionSubmit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSubmit.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -114,11 +112,10 @@
 				8858C5CB2BBA200A001391E8 /* Assets.xcassets */,
 				8858C5CD2BBA200A001391E8 /* LiveBall.entitlements */,
 				8858C5CE2BBA200A001391E8 /* Preview Content */,
-				8858C5F22BBA5DF7001391E8 /* TennisClassSelect.swift */,
+				8858C5F22BBA5DF7001391E8 /* SessionOptionSelect.swift */,
 				8858C5F42BBA60B4001391E8 /* PlayerTimers.swift */,
 				8858C5F62BBB6BA0001391E8 /* Sandbox.swift */,
 				8858C5F82BBCCD26001391E8 /* SessionReview.swift */,
-				8858C5FD2BC0B504001391E8 /* SessionOptionSelect.swift */,
 				8858C6022BC797E3001391E8 /* SessionSubmit.swift */,
 			);
 			path = LiveBall;
@@ -289,10 +286,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8858C5C82BBA2009001391E8 /* LiveBall.swift in Sources */,
-				8858C5F32BBA5DF7001391E8 /* TennisClassSelect.swift in Sources */,
+				8858C5F32BBA5DF7001391E8 /* SessionOptionSelect.swift in Sources */,
 				8858C5F92BBCCD26001391E8 /* SessionReview.swift in Sources */,
 				8858C6032BC797E3001391E8 /* SessionSubmit.swift in Sources */,
-				8858C5FE2BC0B505001391E8 /* SessionOptionSelect.swift in Sources */,
 				8858C5F52BBA60B4001391E8 /* PlayerTimers.swift in Sources */,
 				8858C5F72BBB6BA0001391E8 /* Sandbox.swift in Sources */,
 			);
