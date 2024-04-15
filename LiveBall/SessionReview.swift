@@ -178,11 +178,23 @@ struct SessionReview: View {
     
 }
 struct SessionReview_Previews: PreviewProvider {
-    static let sessionRecords = SessionRecordList()
     static var previews: some View {
-        SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5")
-        )
-        .environmentObject(PathState())
-        .environmentObject(sessionRecords)
-    }
+            let sessionRecords = SessionRecordList()
+            sessionRecords.roundRecords = [
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 100, isRoundEndingTeam: false, round: 1),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 1),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 5, isRoundEndingTeam: true, round: 1),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 1)
+                ],
+                [DoublesRecord(player1Name: "5 TESTER 1", player2Name: "5 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "5 TESTER 3", player2Name: "5 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "5 TESTER 5", player2Name: "5 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true, round: 2),
+                 DoublesRecord(player1Name: "5 TESTER 7", player2Name: "5 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 2)
+                ]
+            ];
+
+            return SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5"))
+                .environmentObject(PathState())
+                .environmentObject(sessionRecords)
+        }
 }
