@@ -30,6 +30,7 @@ struct SessionOptionSelect: View {
                                        "FortuneTennis 4.0",
                                        "FortuneTennis 4.5",
                                        "FortuneTennis 5.0",
+                                       "Test Ben"
                                        ]
     @State private var newClassName = ""
     @State private var selectedClass = DEFAULT_CREATE_CLASS_OPTION
