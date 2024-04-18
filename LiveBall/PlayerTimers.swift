@@ -565,7 +565,7 @@ struct PlayerTimers: View {
         playerNames: .constant(["1", "2", "3",
                                 "4", "5"]),
         timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
-        selectedTennisClass: .constant("FortuneTennis 4.0")
+        selectedTennisClass: .constant("Test Ben")
     )
     .environmentObject(SessionRecordList())
 }

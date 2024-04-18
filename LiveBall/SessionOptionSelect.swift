@@ -153,7 +153,7 @@ struct SessionOptionSelect: View {
                 .padding()
                 HStack{
                     if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
-                        NavigationLink(value: PathState.Destination.playerClassWritten) {
+                        NavigationLink(value: PathState.Destination.playerClassSelected) {
                             Text("Create Session")
                         }
                         .simultaneousGesture(TapGesture().onEnded {
@@ -162,8 +162,8 @@ struct SessionOptionSelect: View {
                         })
                         .buttonStyle(.borderedProminent)
                     } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
-                        NavigationLink(value: PathState.Destination.playerClassSelected ) {
-                            Text("Create Session")
+                        NavigationLink(value: PathState.Destination.playerClassWritten ) {
+                            Text("Create Session Written")
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             sessionRecords.roundRecords = []
@@ -197,7 +197,9 @@ struct SessionOptionSelect: View {
                                    timePerRound: $timePerRound,
                                    selectedTennisClass: $newClassName)
                   case .playerClassSelected:
-                      PlayerTimers(playerNames: $playerNames, timePerRound: $timePerRound, selectedTennisClass: $selectedClass)
+                      PlayerTimers(playerNames: $playerNames, 
+                                   timePerRound: $timePerRound,
+                                   selectedTennisClass: $selectedClass)
                       
                   }
               }
