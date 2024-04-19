@@ -17,23 +17,47 @@ struct PlayerScoresView: View {
     var playerScores: [String: (Int, Int, Int, Int)]
 
     var body: some View {
-        List(playerScores.sorted(by: { $0.key < $1.key }), id: \.key) { playerName, scores in
+        List(playerScores.sorted(by: { $0.value.3 > $1.value.3 }), id: \.key) { playerName, scores in
             HStack {
                 Text(playerName)
+                    .foregroundColor(.primary)
+                    .font(.headline)
+                
                 Spacer()
-                ForEach(0..<scores.0, id: \.self) { _ in
-                    Image(systemName: "crown.fill")
-                        .foregroundColor(.yellow)
+                
+                VStack(alignment: .trailing) {
+                    HStack {
+                        Text("\(scores.0) x")
+                        Image(systemName: "crown.fill")
+                            .foregroundColor(.yellow)
+                        Text("= \(scores.0 * ROUND_ENDING_POINTS)")
+                            .foregroundColor(.secondary)
+                            .font(.subheadline)
+                    }
+                    HStack {
+                        Text("\(scores.1) x")
+                        Image(systemName: "stopwatch")
+                        Text("= \(scores.1 * HIGHEST_TIME_ROUND_POINTS)")
+                            .foregroundColor(.secondary)
+                            .font(.subheadline)
+                    }
+                    if scores.2 > 0 {
+                        HStack {
+                            Text("\(scores.2) x")
+                            Image(systemName: "trophy")
+                                .foregroundColor(.yellow)
+                            Text("= \(scores.2 * HIGHEST_TIME_SESSION_POINTS)")
+                                .foregroundColor(.secondary)
+                                .font(.subheadline)
+                        }
+                    }
                 }
-                ForEach(0..<scores.1, id: \.self) { _ in
-                    Image(systemName: "stopwatch")
-                }
-                if scores.2 > 0 {
-                    Image(systemName: "trophy")
-                        .foregroundColor(.yellow)
-                }
-                Text("\(scores.3)")
+            
+                Text("Total: \(scores.3)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
             }
+            .padding(.vertical, 8)
         }
     }
 }
@@ -110,21 +134,6 @@ struct SessionReview: View {
                 }
                 
             } else {
-                Text("Points Table")
-                HStack {
-                    Image(systemName: "crown.fill")
-                        .foregroundColor(.yellow)
-                    Text("+ \(ROUND_ENDING_POINTS)")
-                }
-                HStack {
-                    Image(systemName: "stopwatch")
-                    Text("+ \(HIGHEST_TIME_ROUND_POINTS)")
-                }
-                HStack {
-                    Image(systemName: "trophy")
-                        .foregroundColor(.yellow)
-                    Text("+ \(HIGHEST_TIME_SESSION_POINTS)")
-                }
                 let playerScores = self.getPlayerScoresFromSession(forSession: sessionRecords.roundRecords)
                 PlayerScoresView(playerScores: playerScores)
             }
@@ -221,21 +230,21 @@ struct SessionReview_Previews: PreviewProvider {
                  DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
                  DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 2)
                 ],
-//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 3),
-//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 3),
-//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 3),
-//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 3)
-//                ],
-//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 4),
-//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 4),
-//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 4),
-//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 4)
-//                ],
-//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 5),
-//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 5),
-//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 5),
-//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 5)
-//                ],
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 3),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 3),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 3),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 3)
+                ],
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 4),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 4),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 4),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 4)
+                ],
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 5),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 5),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 5),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 5)
+                ],
             ];
 
             return SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5"))
