@@ -122,7 +122,6 @@ class SoundManager {
 
 struct PlayerTimers: View {
     @EnvironmentObject var sessionRecords : SessionRecordList
-
     @Binding var playerNames : [String]
     @Binding var timePerRound: Int
     @Binding var selectedTennisClass: String
@@ -136,11 +135,6 @@ struct PlayerTimers: View {
     @State private var roundTimerExpiredAlarm = false
     @State private var warningTimerExpiredAlarm = false
     @State private var roundEndScoreState = false
-
-    @State private var roundCount = 1
-    @State private var playerSelectCount = 0;
-
-    @State private var championsSelected: [PlayerItem] = []
     @State private var doublesRecordList : [DoublesRecord] = [
         //Debug Double Records for formatting. Uncomment to use.
         /*
@@ -240,7 +234,7 @@ struct PlayerTimers: View {
                 HStack {
                     Image(systemName: "crown.fill")
                         .foregroundColor(.yellow)
-                    if championsSelected.count >= 2 {
+                    if sessionRecords.championPair.count >= 2 {
                         ZStack {
                             // Red colored rectangle
                             Rectangle()
@@ -249,7 +243,7 @@ struct PlayerTimers: View {
                                 .cornerRadius(10)
                             
                             // Text inside the rectangle
-                            Text("\(self.championsSelected[0].playerName)")
+                            Text("\(sessionRecords.championPair[0].playerName)")
                                 .foregroundColor(.white)
                         }
                             
@@ -261,7 +255,7 @@ struct PlayerTimers: View {
                                 .cornerRadius(10)
                             
                             // Text inside the rectangle
-                            Text("\(self.championsSelected[1].playerName)")
+                            Text("\(self.sessionRecords.championPair[1].playerName)")
                                 .foregroundColor(.white)
                         }
                     }
@@ -330,7 +324,7 @@ struct PlayerTimers: View {
                 }
                 // End Round/Session/ Clear Doubles Table Buttons
                 HStack {
-                    if championsSelected.count >= DOUBLES_PAIR_COUNT && !roundTimerExpiredAlarm && !roundEndScoreState{
+                    if sessionRecords.championPair.count >= DOUBLES_PAIR_COUNT && !roundTimerExpiredAlarm && !roundEndScoreState{
                         Button(action: {
                             // Change color logic here
                             if !roundEndScoreState {
@@ -418,12 +412,12 @@ struct PlayerTimers: View {
 
     private func togglePlayerItem(idx: Int) {
         playerRows[idx].activePlayer.toggle()
-        playerSelectCount += playerRows[idx].activePlayer ? 1 : -1
+        sessionRecords.playerSelectCount += playerRows[idx].activePlayer ? 1 : -1
     }
     
     
     private func liveBallStateMachine(idx: Int) {
-        switch playerSelectCount {
+        switch sessionRecords.playerSelectCount {
             case 0...1:
                 return
             case 2:
@@ -439,7 +433,7 @@ struct PlayerTimers: View {
             case 4:
                 returnChampsBackToPlayerList()
                 addChampButtonView()
-                playerSelectCount = 2
+                sessionRecords.playerSelectCount = 2
             default:
                 print("Error reached Default")
             }
@@ -454,21 +448,21 @@ struct PlayerTimers: View {
     }
     
     private func returnChampsBackToPlayerList() {
-        if championsSelected.count < DOUBLES_PAIR_COUNT {
+        if sessionRecords.championPair.count < DOUBLES_PAIR_COUNT {
             return
         }
-        championsSelected[0].activePlayer = false
-        championsSelected[1].activePlayer = false
+        sessionRecords.championPair[0].activePlayer = false
+        sessionRecords.championPair[1].activePlayer = false
 
-        playerRows.append(championsSelected[0])
-        playerRows.append(championsSelected[1])
-        championsSelected = []
+        playerRows.append(sessionRecords.championPair[0])
+        playerRows.append(sessionRecords.championPair[1])
+        sessionRecords.championPair = []
     }
     
     private func addChampButtonView() {
         for index in playerRows.indices {
             if playerRows[index].activePlayer{
-                championsSelected.append(playerRows[index])
+                sessionRecords.championPair.append(playerRows[index])
             }
         }
         removeActivePlayers()
@@ -476,16 +470,16 @@ struct PlayerTimers: View {
 
     
     private func addDoublesRecord(endOfRound: Bool){
-        if championsSelected.count != DOUBLES_PAIR_COUNT {
+        if sessionRecords.championPair.count != DOUBLES_PAIR_COUNT {
             return
         }
 
         doublesRecordList.append(DoublesRecord(
-            player1Name: championsSelected[0].playerName,
-            player2Name: championsSelected[1].playerName,
+            player1Name: sessionRecords.championPair[0].playerName,
+            player2Name: sessionRecords.championPair[1].playerName,
             timeSpentOnHill: stopwatchViewModel.elapsedPlayerTime,
             isRoundEndingTeam: endOfRound,
-            round: roundCount
+            round: sessionRecords.roundCount
         ))
         
         doublesRecordList.sort {$0.timeSpentOnHill > $1.timeSpentOnHill}
@@ -496,7 +490,7 @@ struct PlayerTimers: View {
         for index in playerRows.indices {
             playerRows[index].activePlayer = false
         }
-        playerSelectCount = championsSelected.count
+        sessionRecords.playerSelectCount = sessionRecords.championPair.count
     }
     
     private func resetDoublesRecord() {
@@ -528,11 +522,11 @@ struct PlayerTimers: View {
 
     private func alertConfirmationChampions() {
 
-        if championsSelected.count < DOUBLES_PAIR_COUNT {
+        if sessionRecords.championPair.count < DOUBLES_PAIR_COUNT {
             return
         }
-        let p1 = championsSelected[0].playerName
-        let p2 = championsSelected[1].playerName
+        let p1 = sessionRecords.championPair[0].playerName
+        let p2 = sessionRecords.championPair[1].playerName
         // Create an alert controller
         let alertController = UIAlertController(title: "Select Champions", message: "Are you sure you want to choose \n\n \(p1)  +  \(p2) \n\n as champions?", preferredStyle: .alert)
        
@@ -550,7 +544,7 @@ struct PlayerTimers: View {
        let confirmAction = UIAlertAction(title: "Confirm", style: .default) { _ in
            addDoublesRecord(endOfRound: true)
            sessionRecords.roundRecords.append(doublesRecordList)
-           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: roundCount)
+           submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: sessionRecords.roundCount)
 
            resetAllActivePlayers()
            roundEndScoreState = true
@@ -571,7 +565,7 @@ struct PlayerTimers: View {
         roundEndScoreState = false
         warningTimerExpiredAlarm = false
         roundTimerExpiredAlarm = false
-        roundCount += 1
+        sessionRecords.roundCount += 1
         stopwatchViewModel.start()
 
     }

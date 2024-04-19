@@ -69,7 +69,7 @@ struct SessionReview: View {
             
             
             
-            if !pointsViewToggle {
+            if pointsViewToggle {
                 ForEach(sessionRecords.roundRecords.indices, id: \.self) { index in
                     Text("Round \(index + 1)")
                         .font(.title)
@@ -94,6 +94,8 @@ struct SessionReview: View {
                 if let sessionMaxTime = getBestTime(forSession: sessionRecords.roundRecords) {
                     HStack {
                         Image(systemName: "trophy")
+                            .foregroundColor(.yellow)
+
                         Text("Session Best Time")
                             .font(.title)
                     }
@@ -102,6 +104,21 @@ struct SessionReview: View {
                 }
                 
             } else {
+                Text("Points Table")
+                HStack {
+                    Image(systemName: "crown.fill")
+                        .foregroundColor(.yellow)
+                    Text("+ \(ROUND_ENDING_POINTS)")
+                }
+                HStack {
+                    Image(systemName: "stopwatch")
+                    Text("+ \(HIGHEST_TIME_ROUND_POINTS)")
+                }
+                HStack {
+                    Image(systemName: "trophy")
+                        .foregroundColor(.yellow)
+                    Text("+ \(HIGHEST_TIME_SESSION_POINTS)")
+                }
                 let playerScores = self.getPlayerScoresFromSession(forSession: sessionRecords.roundRecords)
                 PlayerScoresView(playerScores: playerScores)
             }
@@ -186,11 +203,16 @@ struct SessionReview_Previews: PreviewProvider {
                  DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 5, isRoundEndingTeam: true, round: 1),
                  DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 1)
                 ],
-                [DoublesRecord(player1Name: "5 TESTER 1", player2Name: "5 TESTER 2", timeSpentOnHill: 5, isRoundEndingTeam: false, round: 2),
-                 DoublesRecord(player1Name: "5 TESTER 3", player2Name: "5 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
-                 DoublesRecord(player1Name: "5 TESTER 5", player2Name: "5 TESTER 6", timeSpentOnHill: 150, isRoundEndingTeam: true, round: 2),
-                 DoublesRecord(player1Name: "5 TESTER 7", player2Name: "5 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 2)
-                ]
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 26, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 27, isRoundEndingTeam: true, round: 2),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 2)
+                ],
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 3),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 3),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: true, round: 3),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 300, isRoundEndingTeam: false, round: 3)
+                ],
             ];
 
             return SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5"))

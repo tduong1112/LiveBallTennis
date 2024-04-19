@@ -18,12 +18,17 @@ class PathState: ObservableObject {
 
 class SessionRecordList: ObservableObject {
     @Published var roundRecords: [[DoublesRecord]] = []
+    @Published var championPair: [PlayerItem] = []
+    @Published var roundCount: Int = 1
+    @Published var playerSelectCount: Int = 0
+
 }
+
 
 struct SessionOptionSelect: View {
     @StateObject var pathState = PathState()
     @StateObject var sessionRecords = SessionRecordList()
-
+    
     @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION,
                                        "FortuneTennis 3.5",
                                        "FortuneTennis 3.5-4.0+",
