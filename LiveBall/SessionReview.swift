@@ -12,23 +12,29 @@ let ROUND_ENDING_POINTS = 1
 let HIGHEST_TIME_ROUND_POINTS = 3
 let HIGHEST_TIME_SESSION_POINTS = 5
 
+
 struct PlayerScoresView: View {
-    var playerScores: [String: Int]
+    var playerScores: [String: (Int, Int, Int, Int)]
 
     var body: some View {
-        let filteredScores = playerScores.filter { $0.value != 0 }
-                                        .sorted(by: { $0.value > $1.value })
-
-        return List {
-            ForEach(filteredScores, id: \.key) { playerScore in
-                HStack {
-                    Text(playerScore.key)
-                    Spacer()
-                    Text("\(playerScore.value)")
+        List(playerScores.sorted(by: { $0.key < $1.key }), id: \.key) { playerName, scores in
+            HStack {
+                Text(playerName)
+                Spacer()
+                ForEach(0..<scores.0, id: \.self) { _ in
+                    Image(systemName: "crown.fill")
+                        .foregroundColor(.yellow)
                 }
+                ForEach(0..<scores.1, id: \.self) { _ in
+                    Image(systemName: "stopwatch")
+                }
+                if scores.2 > 0 {
+                    Image(systemName: "trophy")
+                        .foregroundColor(.yellow)
+                }
+                Text("\(scores.3)")
             }
         }
-        .navigationTitle("Player Scores")
     }
 }
 
@@ -148,71 +154,88 @@ struct SessionReview: View {
         return session.flatMap { $0 }.max(by: { $0.timeSpentOnHill < $1.timeSpentOnHill })
     }
     
-    private func getPlayerScoresFromSession(forSession session: [[DoublesRecord]]) -> [String: Int] {
-        var tempPlayerScores = [String: Int]()
+    private func getPlayerScoresFromSession(forSession session: [[DoublesRecord]]) -> [String: (Int, Int, Int, Int)]{
+        // (ROUND_ENDING_POINTS_INDEX, HIGHEST_TIME_ROUND_POINTS_INDEX, HIGHEST_TIME_SESSION_BOOL_INDEX, TOTAL_SCORE_INDEX)
+
+        var tempPlayerScores: [String: (Int, Int, Int, Int)] = [:]
         // Intialize
         for round in session {
             for record in round {
-                tempPlayerScores[record.player1Name] = 0
-                tempPlayerScores[record.player2Name] = 0
+                if let playerScore = tempPlayerScores[record.player1Name] {
+                    // Do nothing
+                } else {
+                    tempPlayerScores[record.player1Name] = (0, 0, 0, 0)
+                    tempPlayerScores[record.player2Name] = (0, 0, 0, 0)
+                }
+
+                
             }
             if let roundWinningRecord = round.first(where: { $0.isRoundEndingTeam }) {
-                if let score = tempPlayerScores[roundWinningRecord.player1Name] {
-                    tempPlayerScores.updateValue(score + ROUND_ENDING_POINTS, forKey: roundWinningRecord.player1Name)
+                if var score = tempPlayerScores[roundWinningRecord.player1Name] {
+
+                    tempPlayerScores[roundWinningRecord.player1Name] = (score.0 + 1, score.1, score.2, score.3 + ROUND_ENDING_POINTS)
+
+
                 }
-                if let score = tempPlayerScores[roundWinningRecord.player2Name] {
-                    tempPlayerScores.updateValue(score + ROUND_ENDING_POINTS, forKey: roundWinningRecord.player2Name)
+                if var score = tempPlayerScores[roundWinningRecord.player2Name] {
+                    tempPlayerScores[roundWinningRecord.player2Name] = (score.0 + 1, score.1, score.2, score.3 + ROUND_ENDING_POINTS)
                 }
             }
             if let roundLongestRecord = round.max(by: { $0.timeSpentOnHill < $1.timeSpentOnHill }) {
-                if let score = tempPlayerScores[roundLongestRecord.player1Name] {
-                    tempPlayerScores.updateValue(score + HIGHEST_TIME_ROUND_POINTS, forKey: roundLongestRecord.player1Name)
-                }
-                if let score = tempPlayerScores[roundLongestRecord.player2Name] {
-                    tempPlayerScores.updateValue(score + HIGHEST_TIME_ROUND_POINTS, forKey: roundLongestRecord.player2Name)
-                }
-            }
-        }
-        
-        if let sessionLongestRecord = session.flatMap({ $0 }).max(by: { $0.timeSpentOnHill < $1.timeSpentOnHill }) {
-            if let score = tempPlayerScores[sessionLongestRecord.player1Name] {
-                tempPlayerScores.updateValue(score + HIGHEST_TIME_SESSION_POINTS, forKey: sessionLongestRecord.player1Name)
-            }
-            if let score = tempPlayerScores[sessionLongestRecord.player2Name] {
-                tempPlayerScores.updateValue(score + HIGHEST_TIME_SESSION_POINTS, forKey: sessionLongestRecord.player2Name)
-            }
-        }
+                if var score = tempPlayerScores[roundLongestRecord.player1Name] {
+                    tempPlayerScores[roundLongestRecord.player1Name] = (score.0, score.1 + 1, score.2, score.3 + HIGHEST_TIME_ROUND_POINTS)
 
-        // Debug Prints
-        /*
-        for player in tempPlayerScores {
-            print(player)
+
+                }
+                if var score = tempPlayerScores[roundLongestRecord.player2Name] {
+                    tempPlayerScores[roundLongestRecord.player2Name] = (score.0 , score.1 + 1, score.2, score.3 + HIGHEST_TIME_ROUND_POINTS)
+
+                }
+            }
+                
         }
-        print("\n_________\n")
-         */
+        if let sessionLongestRecord = session.flatMap({ $0 }).max(by: { $0.timeSpentOnHill < $1.timeSpentOnHill }) {
+            if var score = tempPlayerScores[sessionLongestRecord.player1Name] {
+                tempPlayerScores[sessionLongestRecord.player1Name] = (score.0 , score.1, score.2 + 1, score.3 + HIGHEST_TIME_SESSION_POINTS)
+
+            }
+            if var score = tempPlayerScores[sessionLongestRecord.player2Name] {
+                tempPlayerScores[sessionLongestRecord.player1Name] = (score.0 , score.1, score.2 + 1, score.3 + HIGHEST_TIME_SESSION_POINTS)
+            }
+        }
         return tempPlayerScores
     }
-    
+
 }
 struct SessionReview_Previews: PreviewProvider {
     static var previews: some View {
             let sessionRecords = SessionRecordList()
             sessionRecords.roundRecords = [
-                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 100, isRoundEndingTeam: false, round: 1),
-                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 1),
-                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 5, isRoundEndingTeam: true, round: 1),
-                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 1)
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: true, round: 1),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 1),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 1),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: false, round: 1)
                 ],
-                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 26, isRoundEndingTeam: false, round: 2),
-                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
-                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 27, isRoundEndingTeam: true, round: 2),
-                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 7, isRoundEndingTeam: false, round: 2)
+                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 2),
+                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 2)
                 ],
-                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 3),
-                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 3),
-                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: true, round: 3),
-                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 300, isRoundEndingTeam: false, round: 3)
-                ],
+//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 3),
+//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 3),
+//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 3),
+//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 3)
+//                ],
+//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 4),
+//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 4),
+//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 4),
+//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 4)
+//                ],
+//                [DoublesRecord(player1Name: "1 TESTER 1", player2Name: "1 TESTER 2", timeSpentOnHill: 1, isRoundEndingTeam: false, round: 5),
+//                 DoublesRecord(player1Name: "1 TESTER 3", player2Name: "1 TESTER 4", timeSpentOnHill: 2, isRoundEndingTeam: false, round: 5),
+//                 DoublesRecord(player1Name: "1 TESTER 5", player2Name: "1 TESTER 6", timeSpentOnHill: 3, isRoundEndingTeam: false, round: 5),
+//                 DoublesRecord(player1Name: "1 TESTER 7", player2Name: "1 TESTER 8", timeSpentOnHill: 4, isRoundEndingTeam: true, round: 5)
+//                ],
             ];
 
             return SessionReview(selectedTennisClass: .constant("FortuneTennis 3.5"))
