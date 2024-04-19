@@ -9,7 +9,7 @@ import SwiftUI
 import AVFoundation
 
 let DOUBLES_PAIR_COUNT = 2
-let ROUND_DEFAULT_PREVIEW_TIME = 2
+let ROUND_DEFAULT_PREVIEW_TIME = 3
 let SECONDS_PER_MINUTE = 60
 let WARNING_TIME_SECONDS = SECONDS_PER_MINUTE * 1 + 30 // 1 minute 30 second warning time
 
@@ -91,7 +91,7 @@ class SoundManager {
     static let instance = SoundManager()
     var player: AVAudioPlayer?
     
-    func playSound() {
+    func playAlarmSound() {
         guard let url = Bundle.main.url(forResource: "iphone-alarm", withExtension: ".mp3") else {return}
         
         do {
@@ -100,6 +100,23 @@ class SoundManager {
         } catch {
             print("Error loading sound file: \(error.localizedDescription)")
         }
+    }
+    
+    func playWarningSound() {
+        guard let url = Bundle.main.url(forResource: "warning", withExtension: ".mp3") else {return}
+        
+        do {
+            player = try AVAudioPlayer(contentsOf: url)
+            for _ in 0..<3 {
+                player?.play()
+            }
+        } catch {
+            print("Error loading sound file: \(error.localizedDescription)")
+        }
+    }
+    
+    func stopSounds() {
+        player?.stop()
     }
 }
 
@@ -169,7 +186,7 @@ struct PlayerTimers: View {
                     } else {
                         Text("\(String(format: "%dm %ds", stopwatchViewModel.elapsedRoundTime/60, stopwatchViewModel.elapsedRoundTime % 60))")
                             .font(.largeTitle)
-                            .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > 10 ? .black : .red)
+                            .foregroundColor(stopwatchViewModel.timePerRound - stopwatchViewModel.elapsedRoundTime > WARNING_TIME_SECONDS ? .black : .red)
                         
 
                     }
@@ -177,14 +194,16 @@ struct PlayerTimers: View {
                 .onReceive(stopwatchViewModel.$elapsedRoundTime) { newValue in
                     if newValue >= stopwatchViewModel.timePerRound && !roundTimerExpiredAlarm {
                         roundTimerExpiredAlarm = true
-                        SoundManager.instance.playSound()
+                        SoundManager.instance.playAlarmSound()
                         stopwatchViewModel.stop()
                     } else if WARNING_TIME_SECONDS > stopwatchViewModel.timePerRound && !warningTimerExpiredAlarm {
                         warningTimerExpiredAlarm = true // Avoid a case where timer is set to 1 minute and cause some weirdness
+
                     }
                     else if newValue >= (stopwatchViewModel.timePerRound - WARNING_TIME_SECONDS) && !warningTimerExpiredAlarm {
-                        print("Warning Time Reached")
                         warningTimerExpiredAlarm = true
+                        SoundManager.instance.playWarningSound()
+
                     }
                 }
                 
@@ -486,6 +505,7 @@ struct PlayerTimers: View {
     
 
     private func endRoundCleanUp() {
+        SoundManager.instance.stopSounds()
         stopwatchViewModel.stop()
         alertConfirmationChampions()
     }
