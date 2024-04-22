@@ -37,7 +37,7 @@ struct SessionOptionSelect: View {
                                        "FortuneTennis 5.0",
                                        "Test Ben"
                                        ]
-    @State private var newClassName = ""
+    @State private var newClassName = DEFAULT_CREATE_CLASS_OPTION
     @State private var selectedClass = DEFAULT_CREATE_CLASS_OPTION
 
     @State private var showAlert = false // Alert state
@@ -64,7 +64,7 @@ struct SessionOptionSelect: View {
                         .font(.title3)
                     Picker("Select an option", selection: $selectedClass) {
                         ForEach(classOptions, id: \.self) { option in
-                            Text(option)
+                            Text(option).tag(option)
                         }
                     }
                     .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
