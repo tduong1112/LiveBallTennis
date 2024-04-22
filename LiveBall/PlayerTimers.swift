@@ -545,7 +545,7 @@ struct PlayerTimers: View {
            addDoublesRecord(endOfRound: true)
            sessionRecords.roundRecords.append(doublesRecordList)
            submitSession(sessionName: selectedTennisClass, roundRecord: doublesRecordList, roundCount: sessionRecords.roundCount)
-
+           sessionRecords.roundCount += 1
            resetAllActivePlayers()
            roundEndScoreState = true
        }
@@ -565,7 +565,6 @@ struct PlayerTimers: View {
         roundEndScoreState = false
         warningTimerExpiredAlarm = false
         roundTimerExpiredAlarm = false
-        sessionRecords.roundCount += 1
         stopwatchViewModel.start()
 
     }
