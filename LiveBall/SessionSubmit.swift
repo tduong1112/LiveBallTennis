@@ -79,55 +79,63 @@ func submitSession(sessionName: String, roundRecord: [DoublesRecord], roundCount
     return result
 }
 
-func postSessionData(postData : Data) -> String{
-    var request = URLRequest(url: URL(string: "https://5rbu4c8mn8.execute-api.us-east-1.amazonaws.com/session")!,timeoutInterval: Double.infinity)
-    var submissionResult = "Error"
-    request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+func postSessionData(postData : Data) -> String {
 
-    request.httpMethod = "POST"
-    request.httpBody = postData
+    if let postUrlString = ProcessInfo.processInfo.environment["POST_SESSION_ENDPOINT"],
+        let urlString = URL(string: postUrlString) {
+        var request = URLRequest(url: urlString, timeoutInterval: Double.infinity)
+        var submissionResult = "Error"
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    let task = URLSession.shared.dataTask(with: request) { data, response, error in
-        // Check for error
-        if let error = error {
-            print("Error: \(error)")
-            return
-        }
+        request.httpMethod = "POST"
+        request.httpBody = postData
 
-        // Check for response
-        guard let httpResponse = response as? HTTPURLResponse else {
-            print("Invalid response")
-            return
-        }
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            // Check for error
+            if let error = error {
+                print("Error: \(error)")
+                return
+            }
 
-        // Print status code
-        print("Status Code: \(httpResponse.statusCode)")
-        if httpResponse.statusCode == 200 {
-            submissionResult = "Success"
-        } else {
-            if let data = data, let responseString = String(data: data, encoding: .utf8) {
-                submissionResult = "Error: \(httpResponse.statusCode) - \(responseString)"
+            // Check for response
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("Invalid response")
+                return
+            }
+
+            // Print status code
+            print("Status Code: \(httpResponse.statusCode)")
+            if httpResponse.statusCode == 200 {
+                submissionResult = "Success"
             } else {
-                submissionResult = "Error: \(httpResponse.statusCode)"
+                if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                    submissionResult = "Error: \(httpResponse.statusCode) - \(responseString)"
+                } else {
+                    submissionResult = "Error: \(httpResponse.statusCode)"
+                }
+            }
+
+            // Check for data
+            guard let data = data else {
+                print("No data received")
+                return
+            }
+
+            // Print data as string
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("Response Data: \(responseString)")
+            } else {
+                print("Unable to convert data to string")
             }
         }
 
-        // Check for data
-        guard let data = data else {
-            print("No data received")
-            return
-        }
-
-        // Print data as string
-        if let responseString = String(data: data, encoding: .utf8) {
-            print("Response Data: \(responseString)")
-        } else {
-            print("Unable to convert data to string")
-        }
+        task.resume()
+        return submissionResult
+    } else {
+        print("POST_SESSION_ENDPOINT environment variable is not set or is invalid.")
+        return "Failed to post"
     }
-
-    task.resume()
-    return submissionResult
+    
 }
 
 struct SubmitSession_Previews: PreviewProvider {

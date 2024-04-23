@@ -60,7 +60,7 @@ struct PlayerScoresView: View {
                 Spacer()
 
                 HStack {
-                    var totalTimeSpentOnHill = scores.4
+                    let totalTimeSpentOnHill = scores.4
                     if (totalTimeSpentOnHill / 60) >= 1 {
                         Text("\(totalTimeSpentOnHill / 60)m")
 
