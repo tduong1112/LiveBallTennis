@@ -34,11 +34,11 @@ struct SessionOptionSelect: View {
 
     @State private var show_alert = false // Alert state
     @State private var time_per_round = 15;
-    @State private var player_names: [String] = []
+    @State private var selected_player_names: [String] = []
     @State private var player_name_input = ""
     
     @State private var select_regular_player = ""
-    @State private var regular_player_names = ["Manny", "Matthew", "Andre", "Vanessa", "Ben"]
+    @State private var regular_player_names = [""]
     @State private var session_clear_warning = false
 
 
@@ -82,6 +82,7 @@ struct SessionOptionSelect: View {
                             // Use the fetched class names here
                             self.class_options = class_options_fetched
                             self.selected_class = class_options[0]
+                            
                         } else if let error = error {
                             print("Error: \(error.localizedDescription)")
                         } else {
@@ -113,46 +114,50 @@ struct SessionOptionSelect: View {
                 }
                 .padding()
                 .font(.title)
-            
-                HStack{
-                    TextField("Player Name", text:$player_name_input)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                        .frame(width:300)
-                    
-                    Button(action: {
-                        if !player_name_input.isEmpty {
-                            player_names.append(player_name_input)
-                            player_name_input = ""
+                if regular_player_names.isEmpty{
+                    Text("Fetching Player Names")
+                } else {
+                    HStack{
+                        TextField("Player Name", text:$player_name_input)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                            .frame(width:300)
+                        
+                        Button(action: {
+                            if !player_name_input.isEmpty {
+                                selected_player_names.append(player_name_input)
+                                player_name_input = ""
+                            }
+                        }) {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.system(size:30))
                         }
-                    }) {
-                        Image(systemName: "arrow.right.circle.fill")
-                            .font(.system(size:30))
+                        
                     }
-                    
-                }
-                HStack {
-                    Text("Regular Player Selection: ")
-                    Picker("Add Player", selection: $select_regular_player) {
-                        ForEach(regular_player_names, id: \.self) { playerName in
-                            Text(playerName)
+                    HStack {
+                        Text("Regular Player Selection: ")
+                        Picker("Add Player", selection: $select_regular_player) {
+                            ForEach(regular_player_names, id: \.self) { playerName in
+                                Text(playerName)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle()) // Set the style of the Picker
+                        .onChange(of: select_regular_player) {
+                            if !select_regular_player.isEmpty {
+                                selected_player_names.append(select_regular_player)
+                                select_regular_player = ""
+                            }
                         }
                     }
-                    .pickerStyle(MenuPickerStyle()) // Set the style of the Picker
-                    .onChange(of: select_regular_player) {
-                        if !select_regular_player.isEmpty {
-                            player_names.append(select_regular_player)
-                            select_regular_player = ""
-                        }
-                    }
+
                 }
                 
                 List {
-                    ForEach(player_names, id: \.self) { playerName in
+                    ForEach(selected_player_names, id: \.self) { playerName in
                         HStack {
                             Button(action: {
-                                if let index = player_names.firstIndex(of: playerName) {
-                                    player_names.remove(at: index)
+                                if let index = selected_player_names.firstIndex(of: playerName) {
+                                    selected_player_names.remove(at: index)
                                 }
                             }) {
                                 Image(systemName: "xmark")
@@ -198,7 +203,7 @@ struct SessionOptionSelect: View {
               .navigationDestination(for: PathState.Destination.self) { destination in
                   switch destination {
                   case .playerClassSelected:
-                      PlayerTimers(playerNames: $player_names,
+                      PlayerTimers(playerNames: $selected_player_names,
                                    timePerRound: $time_per_round,
                                    selectedTennisClass: $selected_class)
                       

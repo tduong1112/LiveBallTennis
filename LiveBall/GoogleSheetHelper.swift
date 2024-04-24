@@ -4,6 +4,7 @@ func getClassNames(completion: @escaping ([String]?, Error?) -> Void) {
     // Check if class names are cached
     if let cached_class_names = UserDefaults.standard.stringArray(forKey: "CachedClassNames") {
         completion(cached_class_names, nil)
+        print("Pulled Class Names From Cache")
         return
     }
     
@@ -39,6 +40,14 @@ func getClassNames(completion: @escaping ([String]?, Error?) -> Void) {
 
 
 func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]?, Error?) -> Void) {
+    if let cached_player_names = UserDefaults.standard.stringArray(forKey: class_name) {
+        completion(cached_player_names, nil)
+        print("Pulled Player Names From Cache")
+        return
+    }
+    
+    print(class_name)
+
     let parameters = "{\n    \"class_name\": \"\(class_name)\"\n\n}"
     let post_data = parameters.data(using: .utf8)
     
@@ -73,10 +82,13 @@ func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]
             }
 
             do {
-                let new_items = try JSONDecoder().decode([String].self, from: data)
+                let player_names = try JSONDecoder().decode([String].self, from: data)
+                UserDefaults.standard.set(player_names, forKey: class_name)
+
                 // Cache the class names
-                completion(new_items, nil)
+                completion(player_names, nil)
             } catch {
+                print(data)
                 print("Error decoding JSON: \(error)")
             }
         }
