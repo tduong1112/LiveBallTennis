@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-let DEFAULT_CREATE_CLASS_OPTION = "Create a class"
+let DEFAULT_CREATE_CLASS_OPTION = "Select a Class"
 
 class PathState: ObservableObject {
   enum Destination: String, Hashable {
-    case playerClassWritten, playerClassSelected
+    case playerClassSelected
   }
   @Published var path: [Destination] = []
 }
@@ -26,47 +26,45 @@ class SessionRecordList: ObservableObject {
 
 
 struct SessionOptionSelect: View {
-    @StateObject var pathState = PathState()
-    @StateObject var sessionRecords = SessionRecordList()
+    @StateObject var path_state = PathState()
+    @StateObject var session_records = SessionRecordList()
     
-    @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION]
-    @State private var newClassName = DEFAULT_CREATE_CLASS_OPTION
-    @State private var selectedClass = DEFAULT_CREATE_CLASS_OPTION
+    @State private var class_options = ["Place_holder"]
+    @State private var selected_class = DEFAULT_CREATE_CLASS_OPTION
 
-    @State private var showAlert = false // Alert state
-    @State private var timePerRound = 15;
-    @State private var playerNames: [String] = ["Manny"]
-    @State private var playerNameInput = ""
+    @State private var show_alert = false // Alert state
+    @State private var time_per_round = 15;
+    @State private var player_names: [String] = []
+    @State private var player_name_input = ""
     
-    @State private var selectRegularPlayer = ""
-    @State private var regularPlayerNames = ["Manny", "Matthew", "Andre", "Vanessa", "Ben"]
-    @State private var sessionClearWarning = false
+    @State private var select_regular_player = ""
+    @State private var regular_player_names = ["Manny", "Matthew", "Andre", "Vanessa", "Ben"]
+    @State private var session_clear_warning = false
 
 
 
-    let timePerRoundPickerList = Array(1...30)
+    let time_per_roundPickerList = Array(1...30)
     
     
     var body: some View {
-        NavigationStack (path: $pathState.path){
+        NavigationStack (path: $path_state.path){
             VStack {
                 Text("Create A Game")
                     .font(.title)
                 HStack {
                     Text("Name of Class:")
                         .font(.title3)
-                    Picker("Select an option", selection: $selectedClass) {
-                        ForEach(classOptions, id: \.self) { option in
+                    Picker("Select an option", selection: $selected_class) {
+                        ForEach(class_options, id: \.self) { option in
                             Text(option).tag(option)
                         }
                     }
                     .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
                     .font(.title3)
-                    .onChange(of: selectedClass) {
-                        getPlayerNamesFromClass(class_name: selectedClass) { player_names_fetched, error in
+                    .onChange(of: selected_class) {
+                        getPlayerNamesFromClass(class_name: selected_class) { player_names_fetched, error in
                             if let player_names_fetched = player_names_fetched {
-                                print(player_names_fetched)
-                                self.regularPlayerNames = player_names_fetched
+                                self.regular_player_names = player_names_fetched
                                 
                             } else if let error = error {
                                 print("Error: \(error.localizedDescription)")
@@ -82,8 +80,7 @@ struct SessionOptionSelect: View {
                     getClassNames { class_options_fetched, error in
                         if let class_options_fetched = class_options_fetched {
                             // Use the fetched class names here
-                            print(class_options_fetched)
-                            classOptions.append(contentsOf: class_options_fetched)
+                            self.class_options = class_options_fetched
                         } else if let error = error {
                             print("Error: \(error.localizedDescription)")
                         } else {
@@ -93,17 +90,6 @@ struct SessionOptionSelect: View {
                 }
 
                 
-                if selectedClass == DEFAULT_CREATE_CLASS_OPTION {
-                    TextField(
-                        "Enter Class Name",
-                        text: $newClassName
-                    )
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .frame(width:300)
-                    .font(.title3)
-                }
-                Spacer().frame(height: 50)
-                
                 Text("Time per Round (minutes):")
                     .font(.title3)
                 
@@ -111,15 +97,15 @@ struct SessionOptionSelect: View {
                     
                     
                     Button(action: {
-                        if timePerRound > 1 {
-                            timePerRound -= 1
+                        if time_per_round > 1 {
+                            time_per_round -= 1
                         }
                     }) {
                         Image(systemName: "minus.circle")
                     }
-                    Text("\(timePerRound)")
+                    Text("\(time_per_round)")
                     Button(action: {
-                        timePerRound += 1
+                        time_per_round += 1
                     }) {
                         Image(systemName: "plus.circle")
                     }
@@ -128,15 +114,15 @@ struct SessionOptionSelect: View {
                 .font(.title)
             
                 HStack{
-                    TextField("Player Name", text:$playerNameInput)
+                    TextField("Player Name", text:$player_name_input)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding()
                         .frame(width:300)
                     
                     Button(action: {
-                        if !playerNameInput.isEmpty {
-                            playerNames.append(playerNameInput)
-                            playerNameInput = ""
+                        if !player_name_input.isEmpty {
+                            player_names.append(player_name_input)
+                            player_name_input = ""
                         }
                     }) {
                         Image(systemName: "arrow.right.circle.fill")
@@ -146,26 +132,26 @@ struct SessionOptionSelect: View {
                 }
                 HStack {
                     Text("Regular Player Selection: ")
-                    Picker("Add Player", selection: $selectRegularPlayer) {
-                        ForEach(regularPlayerNames, id: \.self) { playerName in
+                    Picker("Add Player", selection: $select_regular_player) {
+                        ForEach(regular_player_names, id: \.self) { playerName in
                             Text(playerName)
                         }
                     }
                     .pickerStyle(MenuPickerStyle()) // Set the style of the Picker
-                    .onChange(of: selectRegularPlayer) {
-                        if !selectRegularPlayer.isEmpty {
-                            playerNames.append(selectRegularPlayer)
-                            selectRegularPlayer = ""
+                    .onChange(of: select_regular_player) {
+                        if !select_regular_player.isEmpty {
+                            player_names.append(select_regular_player)
+                            select_regular_player = ""
                         }
                     }
                 }
                 
                 List {
-                    ForEach(playerNames, id: \.self) { playerName in
+                    ForEach(player_names, id: \.self) { playerName in
                         HStack {
                             Button(action: {
-                                if let index = playerNames.firstIndex(of: playerName) {
-                                    playerNames.remove(at: index)
+                                if let index = player_names.firstIndex(of: playerName) {
+                                    player_names.remove(at: index)
                                 }
                             }) {
                                 Image(systemName: "xmark")
@@ -179,37 +165,28 @@ struct SessionOptionSelect: View {
                 }
                 .padding()
                 HStack{
-                    if selectedClass != DEFAULT_CREATE_CLASS_OPTION {
+                    if selected_class != DEFAULT_CREATE_CLASS_OPTION {
                         NavigationLink(value: PathState.Destination.playerClassSelected) {
                             Text("Create Session")
                         }
                         .simultaneousGesture(TapGesture().onEnded {
-                            sessionRecords.roundRecords = []
-                            print(sessionRecords.roundRecords)
-                        })
-                        .buttonStyle(.borderedProminent)
-                    } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
-                        NavigationLink(value: PathState.Destination.playerClassWritten ) {
-                            Text("Create Session")
-                        }
-                        .simultaneousGesture(TapGesture().onEnded {
-                            sessionRecords.roundRecords = []
-                            print(sessionRecords.roundRecords)
+                            session_records.roundRecords = []
+                            print(session_records.roundRecords)
                         })
                         .buttonStyle(.borderedProminent)
                     } else {
                         Button(action: {
                             // Display error message here
-                            self.showAlert = true
+                            self.show_alert = true
                         }) {
                             Text("Create Session")
                         }
                         .buttonStyle(.borderedProminent)
-                        .alert(isPresented: $showAlert) {
+                        .alert(isPresented: $show_alert) {
                             Alert(title: Text("Error"), message: Text("Session Created Name is empty"), dismissButton: .default(Text("OK")))
                         }
                     }
-                    if !sessionRecords.roundRecords.isEmpty {
+                    if !session_records.roundRecords.isEmpty {
                         NavigationLink(value: PathState.Destination.playerClassSelected ) {
                             Text("Resume Session")
                         }
@@ -219,21 +196,17 @@ struct SessionOptionSelect: View {
             } // VStack
               .navigationDestination(for: PathState.Destination.self) { destination in
                   switch destination {
-                  case .playerClassWritten:
-                      PlayerTimers(playerNames: $playerNames,
-                                   timePerRound: $timePerRound,
-                                   selectedTennisClass: $newClassName)
                   case .playerClassSelected:
-                      PlayerTimers(playerNames: $playerNames, 
-                                   timePerRound: $timePerRound,
-                                   selectedTennisClass: $selectedClass)
+                      PlayerTimers(playerNames: $player_names,
+                                   timePerRound: $time_per_round,
+                                   selectedTennisClass: $selected_class)
                       
                   }
               }
 
         } // NavigationStack
-        .environmentObject(pathState)
-        .environmentObject(sessionRecords)
+        .environmentObject(path_state)
+        .environmentObject(session_records)
 
     } //Body View
 
