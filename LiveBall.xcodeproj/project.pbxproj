@@ -19,6 +19,7 @@
 		8858C5F92BBCCD26001391E8 /* SessionReview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C5F82BBCCD26001391E8 /* SessionReview.swift */; };
 		8858C6012BC604AE001391E8 /* iphone-alarm.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 8858C6002BC604AD001391E8 /* iphone-alarm.mp3 */; };
 		8858C6032BC797E3001391E8 /* SessionSubmit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8858C6022BC797E3001391E8 /* SessionSubmit.swift */; };
+		B53E9BA72BD9757200004E03 /* GoogleSheetHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53E9BA62BD9757200004E03 /* GoogleSheetHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		8858C5FC2BC08A7E001391E8 /* Liveball_Icon_WhiteBkgrd_1800.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Liveball_Icon_WhiteBkgrd_1800.jpeg; sourceTree = "<group>"; };
 		8858C6002BC604AD001391E8 /* iphone-alarm.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "iphone-alarm.mp3"; sourceTree = "<group>"; };
 		8858C6022BC797E3001391E8 /* SessionSubmit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSubmit.swift; sourceTree = "<group>"; };
+		B53E9BA62BD9757200004E03 /* GoogleSheetHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSheetHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +119,7 @@
 				8858C5F62BBB6BA0001391E8 /* Sandbox.swift */,
 				8858C5F82BBCCD26001391E8 /* SessionReview.swift */,
 				8858C6022BC797E3001391E8 /* SessionSubmit.swift */,
+				B53E9BA62BD9757200004E03 /* GoogleSheetHelper.swift */,
 			);
 			path = LiveBall;
 			sourceTree = "<group>";
@@ -285,6 +288,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B53E9BA72BD9757200004E03 /* GoogleSheetHelper.swift in Sources */,
 				8858C5C82BBA2009001391E8 /* LiveBall.swift in Sources */,
 				8858C5F32BBA5DF7001391E8 /* SessionOptionSelect.swift in Sources */,
 				8858C5F92BBCCD26001391E8 /* SessionReview.swift in Sources */,

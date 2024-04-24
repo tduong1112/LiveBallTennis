@@ -29,14 +29,7 @@ struct SessionOptionSelect: View {
     @StateObject var pathState = PathState()
     @StateObject var sessionRecords = SessionRecordList()
     
-    @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION,
-                                       "FortuneTennis 3.5",
-                                       "FortuneTennis 3.5-4.0+",
-                                       "FortuneTennis 4.0",
-                                       "FortuneTennis 4.5",
-                                       "FortuneTennis 5.0",
-                                       "Test Ben"
-                                       ]
+    @State private var classOptions = [DEFAULT_CREATE_CLASS_OPTION]
     @State private var newClassName = DEFAULT_CREATE_CLASS_OPTION
     @State private var selectedClass = DEFAULT_CREATE_CLASS_OPTION
 
@@ -69,8 +62,37 @@ struct SessionOptionSelect: View {
                     }
                     .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
                     .font(.title3)
+                    .onChange(of: selectedClass) {
+                        getPlayerNamesFromClass(class_name: selectedClass) { player_names_fetched, error in
+                            if let player_names_fetched = player_names_fetched {
+                                print(player_names_fetched)
+                                self.regularPlayerNames = player_names_fetched
+                                
+                            } else if let error = error {
+                                print("Error: \(error.localizedDescription)")
+                            } else {
+                                print("Failed to fetch class names")
+                            }
+                        }
+                    }
                     
+                    // Code to execute when the selected option changes
                 }
+                .onAppear {
+                    getClassNames { class_options_fetched, error in
+                        if let class_options_fetched = class_options_fetched {
+                            // Use the fetched class names here
+                            print(class_options_fetched)
+                            classOptions.append(contentsOf: class_options_fetched)
+                        } else if let error = error {
+                            print("Error: \(error.localizedDescription)")
+                        } else {
+                            print("Failed to fetch class names")
+                        }
+                    }
+                }
+
+                
                 if selectedClass == DEFAULT_CREATE_CLASS_OPTION {
                     TextField(
                         "Enter Class Name",
@@ -168,7 +190,7 @@ struct SessionOptionSelect: View {
                         .buttonStyle(.borderedProminent)
                     } else if selectedClass == DEFAULT_CREATE_CLASS_OPTION && !newClassName.isEmpty {
                         NavigationLink(value: PathState.Destination.playerClassWritten ) {
-                            Text("Create Session Written")
+                            Text("Create Session")
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             sessionRecords.roundRecords = []

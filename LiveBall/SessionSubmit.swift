@@ -82,7 +82,7 @@ func submitSession(sessionName: String, roundRecord: [DoublesRecord], roundCount
 func postSessionData(postData : Data) -> String {
 
     if let postUrlString = ProcessInfo.processInfo.environment["POST_SESSION_ENDPOINT"],
-        let urlString = URL(string: postUrlString) {
+        let urlString = URL(string: postUrlString + "/session") {
         var request = URLRequest(url: urlString, timeoutInterval: Double.infinity)
         var submissionResult = "Error"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
