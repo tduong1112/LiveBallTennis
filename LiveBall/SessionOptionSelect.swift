@@ -81,6 +81,7 @@ struct SessionOptionSelect: View {
                         if let class_options_fetched = class_options_fetched {
                             // Use the fetched class names here
                             self.class_options = class_options_fetched
+                            self.selected_class = class_options[0]
                         } else if let error = error {
                             print("Error: \(error.localizedDescription)")
                         } else {
