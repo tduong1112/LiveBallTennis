@@ -40,11 +40,6 @@ func getClassNames(completion: @escaping ([String]?, Error?) -> Void) {
 
 
 func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]?, Error?) -> Void) {
-    if let cached_player_names = UserDefaults.standard.stringArray(forKey: class_name) {
-        completion(cached_player_names, nil)
-        print("Pulled Player Names From Cache")
-        return
-    }
     
     let parameters = "{\n    \"class_name\": \"\(class_name)\"\n\n}"
     let post_data = parameters.data(using: .utf8)
@@ -77,14 +72,12 @@ func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]
             }
 
             do {
+                print("Player Names requested for \(class_name)")
                 let player_names = try JSONDecoder().decode([String].self, from: data)
-                UserDefaults.standard.set(player_names, forKey: class_name)
-
-                // Cache the class names
                 completion(player_names, nil)
+
             } catch {
                 print("Error decoding Player Name JSON: \(error)")
-                // Reset the cache so that any errors with the sheets is not maintained
                 let appDomain = Bundle.main.bundleIdentifier!
                 UserDefaults.standard.removePersistentDomain(forName: appDomain)
             }

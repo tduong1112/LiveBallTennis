@@ -375,10 +375,14 @@ struct PlayerTimers: View {
                             Alert(title: Text("Error"), message: Text("No rounds recorded. Cannot end session."), dismissButton: .default(Text("OK")))
                         }
                     }
-                }
-            }
+                } // Hstack
+            } // VStack
+        } // Vstack
+        .onAppear {
+            checkRedundantPlayerList()
         }
-    }
+    } // View
+
     
     private func toggleActivePlayer(for playerItem: PlayerItem) {
         guard let index = playerRows.firstIndex(where: { $0.id == playerItem.id }) else {
@@ -566,21 +570,39 @@ struct PlayerTimers: View {
         warningTimerExpiredAlarm = false
         roundTimerExpiredAlarm = false
         stopwatchViewModel.start()
-
     }
-
     
+    private func checkRedundantPlayerList() {
+        if sessionRecords.championPair.count < DOUBLES_PAIR_COUNT {
+            return
+        }
+        let championPlayer0 = sessionRecords.championPair[0]
+        let championPlayer1 = sessionRecords.championPair[1]
+        
+        // Checks if the players are in the champs list already and remove them by setting them as active players
+        for index in playerRows.indices {
+            if sessionRecords.championPair.contains(where: { $0.playerName == playerRows[index].playerName }) {
+                playerRows[index].activePlayer = true
+            }
+        }
+        removeActivePlayers()
+    }
 
 }
 
-#Preview {
-    PlayerTimers(
-        playerNames: .constant(["1", "2", "3",
-                                "4", "5"]),
-        timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
-        selectedTennisClass: .constant("Test Ben")
-    )
-    .environmentObject(SessionRecordList())
+struct PlayerTimers_Previews: PreviewProvider {
+    static var previews: some View {
+        let sessionRecords = SessionRecordList()
+
+
+        return PlayerTimers(
+            playerNames: .constant(["1", "2", "3",
+                                    "4", "5"]),
+            timePerRound: .constant(ROUND_DEFAULT_PREVIEW_TIME),
+            selectedTennisClass: .constant("Test Ben")
+        )
+        .environmentObject(sessionRecords)
+        }
 }
 
 

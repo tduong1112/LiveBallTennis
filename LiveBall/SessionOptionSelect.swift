@@ -48,12 +48,14 @@ struct SessionOptionSelect: View {
     
     var body: some View {
         NavigationStack (path: $path_state.path){
+            Spacer().frame(height: 70)
             VStack {
                 Text("Create A Game")
                     .font(.title)
-                HStack {
-                    Text("Name of Class:")
+                HStack{
+                    Text("Class:")
                         .font(.title3)
+
                     Picker("Select an option", selection: $selected_class) {
                         ForEach(class_options, id: \.self) { option in
                             Text(option).tag(option)
@@ -62,6 +64,8 @@ struct SessionOptionSelect: View {
                     .pickerStyle(DefaultPickerStyle()) // Set the style of the Picker
                     .font(.title3)
                     .onChange(of: selected_class) {
+                        // Code to execute when the selected option changes
+
                         getPlayerNamesFromClass(class_name: selected_class) { player_names_fetched, error in
                             if let player_names_fetched = player_names_fetched {
                                 self.regular_player_names = player_names_fetched
@@ -73,31 +77,26 @@ struct SessionOptionSelect: View {
                             }
                         }
                     }
+                    Button(action: {
+                        // Reset the cache so that any errors with the sheets is not maintained
+                        let appDomain = Bundle.main.bundleIdentifier!
+                        UserDefaults.standard.removePersistentDomain(forName: appDomain)
+                        refreshClassNames()
+                    }){
+                        Image(systemName: "arrow.clockwise")
+                    }
                     
-                    // Code to execute when the selected option changes
                 }
                 .onAppear {
-                    getClassNames { class_options_fetched, error in
-                        if let class_options_fetched = class_options_fetched {
-                            // Use the fetched class names here
-                            self.class_options = class_options_fetched
-                            self.selected_class = class_options[0]
-                            
-                        } else if let error = error {
-                            print("Error: \(error.localizedDescription)")
-                        } else {
-                            print("Failed to fetch class names")
-                        }
-                    }
+                    refreshClassNames()
                 }
+                
 
                 
                 Text("Time per Round (minutes):")
                     .font(.title3)
                 
                 HStack {
-                    
-                    
                     Button(action: {
                         if time_per_round > 1 {
                             time_per_round -= 1
@@ -112,28 +111,12 @@ struct SessionOptionSelect: View {
                         Image(systemName: "plus.circle")
                     }
                 }
-                .padding()
+                .padding().frame(height:50)
                 .font(.title)
+                Spacer().frame(height: 30)
                 if regular_player_names.isEmpty{
                     Text("Fetching Player Names")
                 } else {
-                    HStack{
-                        TextField("Player Name", text:$player_name_input)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding()
-                            .frame(width:300)
-                        
-                        Button(action: {
-                            if !player_name_input.isEmpty {
-                                selected_player_names.append(player_name_input)
-                                player_name_input = ""
-                            }
-                        }) {
-                            Image(systemName: "arrow.right.circle.fill")
-                                .font(.system(size:30))
-                        }
-                        
-                    }
                     HStack {
                         Text("Regular Player Selection: ")
                         Picker("Add Player", selection: $select_regular_player) {
@@ -149,7 +132,24 @@ struct SessionOptionSelect: View {
                             }
                         }
                     }
-
+                    .padding().frame(height: 10)
+                    HStack{
+                        TextField("New Player Name", text:$player_name_input)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .padding()
+                            .frame(width:300)
+                        
+                        Button(action: {
+                            if !player_name_input.isEmpty {
+                                selected_player_names.append(player_name_input)
+                                player_name_input = ""
+                            }
+                        }) {
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.system(size:30))
+                        }
+                        
+                    }
                 }
                 
                 List {
@@ -171,12 +171,13 @@ struct SessionOptionSelect: View {
                 }
                 .padding()
                 HStack{
-                    if selected_class != DEFAULT_CREATE_CLASS_OPTION {
+                    if selected_class != DEFAULT_CREATE_CLASS_OPTION && !selected_player_names.isEmpty{
                         NavigationLink(value: PathState.Destination.playerClassSelected) {
                             Text("Create Session")
                         }
                         .simultaneousGesture(TapGesture().onEnded {
                             session_records.roundRecords = []
+                            session_records.championPair = []
                             print(session_records.roundRecords)
                         })
                         .buttonStyle(.borderedProminent)
@@ -215,6 +216,21 @@ struct SessionOptionSelect: View {
         .environmentObject(session_records)
 
     } //Body View
+    
+    private func refreshClassNames() {
+        getClassNames { class_options_fetched, error in
+            if let class_options_fetched = class_options_fetched {
+                // Use the fetched class names here
+                self.class_options = class_options_fetched
+                self.selected_class = class_options[0]
+                
+            } else if let error = error {
+                print("Error: \(error.localizedDescription)")
+            } else {
+                print("Failed to fetch class names")
+            }
+        }
+    }
 
 }
 
