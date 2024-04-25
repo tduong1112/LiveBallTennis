@@ -112,6 +112,20 @@ struct SessionReview: View {
             
             
             if pointsViewToggle {
+                if let sessionMaxTime = getBestTime(forSession: sessionRecords.roundRecords) {
+                    HStack {
+                        Image(systemName: "trophy")
+                            .foregroundColor(.yellow)
+
+                        Text("Session Best Time")
+                            .font(.title)
+                    }
+                    Text("\(sessionMaxTime.timeSpentOnHill / 60)m \(sessionMaxTime.timeSpentOnHill % 60)s by \(sessionMaxTime.player1Name) and \(sessionMaxTime.player2Name)")
+                    
+                }
+                Spacer().frame(height: 30)
+
+                
                 ForEach(sessionRecords.roundRecords.indices, id: \.self) { index in
                     Text("Round \(index + 1)")
                         .font(.title)
@@ -130,22 +144,21 @@ struct SessionReview: View {
                             Text("\(winners.player1Name) and \(winners.player2Name)")
                         }
                     }
-                    Spacer()
                     
                 }
-                if let sessionMaxTime = getBestTime(forSession: sessionRecords.roundRecords) {
-                    HStack {
-                        Image(systemName: "trophy")
-                            .foregroundColor(.yellow)
 
-                        Text("Session Best Time")
-                            .font(.title)
-                    }
-                    Text("\(sessionMaxTime.timeSpentOnHill / 60)m \(sessionMaxTime.timeSpentOnHill % 60)s by \(sessionMaxTime.player1Name) and \(sessionMaxTime.player2Name)")
-                    
-                }
                 
             } else {
+                HStack{
+                    Image(systemName: "crown.fill")
+                        .foregroundColor(.yellow)
+                    Text("= 1 Point ")
+                    Image(systemName: "timer")
+                    Text("= 3 Point ")
+                    Image(systemName: "trophy")
+                        .foregroundColor(.yellow)
+                    Text("= 5 Point ")
+                }
                 let playerScores = self.getPlayerScoresFromSession(session: sessionRecords.roundRecords)
                 PlayerScoresView(playerScores: playerScores)
             }
@@ -222,11 +235,19 @@ struct SessionReview: View {
         }
         if let sessionLongestRecord = session.flatMap({ $0 }).max(by: { $0.timeSpentOnHill < $1.timeSpentOnHill }) {
             if let score = tempPlayerScores[sessionLongestRecord.player1Name] {
-                tempPlayerScores[sessionLongestRecord.player1Name] = (score.0 , score.1, score.2 + 1, score.3 + HIGHEST_TIME_SESSION_POINTS, score.4)
+                tempPlayerScores[sessionLongestRecord.player1Name] = (score.0,
+                                                                      score.1 - 1, // Subract one from Highest round which is repeated in session highest
+                                                                      score.2 + 1,
+                                                                      score.3 + HIGHEST_TIME_SESSION_POINTS - HIGHEST_TIME_ROUND_POINTS, 
+                                                                      score.4)
 
             }
             if let score = tempPlayerScores[sessionLongestRecord.player2Name] {
-                tempPlayerScores[sessionLongestRecord.player2Name] = (score.0 , score.1, score.2 + 1, score.3 + HIGHEST_TIME_SESSION_POINTS, score.4)
+                tempPlayerScores[sessionLongestRecord.player2Name] = (score.0,
+                                                                      score.1 - 1, // Subract one from Highest round which is repeated in session highest
+                                                                      score.2 + 1,
+                                                                      score.3 + HIGHEST_TIME_SESSION_POINTS - HIGHEST_TIME_ROUND_POINTS,
+                                                                      score.4)
             }
         }
         return tempPlayerScores
