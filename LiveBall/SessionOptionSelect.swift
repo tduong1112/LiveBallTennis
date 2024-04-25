@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-let DEFAULT_CREATE_CLASS_OPTION = "Select a Class"
+let DEFAULT_CREATE_CLASS_OPTION = "Loading"
 
 class PathState: ObservableObject {
   enum Destination: String, Hashable {
@@ -29,7 +29,7 @@ struct SessionOptionSelect: View {
     @StateObject var path_state = PathState()
     @StateObject var session_records = SessionRecordList()
     
-    @State private var class_options = ["Place_holder"]
+    @State private var class_options = [DEFAULT_CREATE_CLASS_OPTION]
     @State private var selected_class = DEFAULT_CREATE_CLASS_OPTION
 
     @State private var show_alert = false // Alert state
@@ -37,8 +37,8 @@ struct SessionOptionSelect: View {
     @State private var selected_player_names: [String] = []
     @State private var player_name_input = ""
     
-    @State private var select_regular_player = ""
-    @State private var regular_player_names = [""]
+    @State private var select_regular_player = DEFAULT_CREATE_CLASS_OPTION
+    @State private var regular_player_names = [DEFAULT_CREATE_CLASS_OPTION]
     @State private var session_clear_warning = false
 
 

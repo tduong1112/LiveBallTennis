@@ -21,12 +21,12 @@ func getClassNames(completion: @escaping ([String]?, Error?) -> Void) {
             }
             
             do {
-                let new_items = try JSONDecoder().decode([String].self, from: data)
+                let class_names = try JSONDecoder().decode([String].self, from: data)
                 // Cache the class names
-                UserDefaults.standard.set(new_items, forKey: "CachedClassNames")
-                completion(new_items, nil)
+                UserDefaults.standard.set(class_names, forKey: "CachedClassNames")
+                completion(class_names, nil)
             } catch {
-                print("Error decoding JSON: \(error)")
+                print("Error decoding Class Name JSON: \(error)")
                 completion(nil, error)
             }
         }
@@ -46,8 +46,6 @@ func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]
         return
     }
     
-    print(class_name)
-
     let parameters = "{\n    \"class_name\": \"\(class_name)\"\n\n}"
     let post_data = parameters.data(using: .utf8)
     
@@ -72,9 +70,6 @@ func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]
                 return
             }
 
-            // Print status code
-            print("Status Code: \(http_response.statusCode)")
-
             // Check for data
             guard let data = data else {
                 print("No data received")
@@ -88,8 +83,10 @@ func getPlayerNamesFromClass(class_name: String, completion: @escaping ([String]
                 // Cache the class names
                 completion(player_names, nil)
             } catch {
-                print(data)
-                print("Error decoding JSON: \(error)")
+                print("Error decoding Player Name JSON: \(error)")
+                // Reset the cache so that any errors with the sheets is not maintained
+                let appDomain = Bundle.main.bundleIdentifier!
+                UserDefaults.standard.removePersistentDomain(forName: appDomain)
             }
         }
 
